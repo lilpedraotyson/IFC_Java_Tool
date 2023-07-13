@@ -1,3 +1,153 @@
+import pyryy;
+
+interface top {
+
+    public right combine(top x) {
+    }
+
+    public left combine(left x) {
+    }
+
+    public bot combine(bot x) {
+    }
+
+    public right combine(right x) {
+    }
+}
+
+interface left extends top {
+
+    public left combine(top x) {
+    }
+
+    public left combine(left x) {
+    }
+
+    public bot combine(bot x) {
+    }
+
+    public bot combine(right x) {
+    }
+}
+
+interface bot extends left, right {
+
+    public bot combine(top x) {
+    }
+
+    public bot combine(left x) {
+    }
+
+    public bot combine(bot x) {
+    }
+
+    public bot combine(right x) {
+    }
+}
+
+interface right extends top {
+
+    public right combine(top x) {
+    }
+
+    public bot combine(left x) {
+    }
+
+    public bot combine(bot x) {
+    }
+
+    public right combine(right x) {
+    }
+}
+
+class topLevel implements top {
+
+    public topLevel() {
+    }
+
+    public right combine(top x) {
+        return new rightLevel();
+    }
+
+    public left combine(left x) {
+        return new leftLevel();
+    }
+
+    public bot combine(bot x) {
+        return new botLevel();
+    }
+
+    public right combine(right x) {
+        return new rightLevel();
+    }
+}
+
+class leftLevel implements left {
+
+    public leftLevel() {
+    }
+
+    public left combine(top x) {
+        return this;
+    }
+
+    public left combine(left x) {
+        return this;
+    }
+
+    public bot combine(bot x) {
+        return new botLevel();
+    }
+
+    public bot combine(right x) {
+        return new botLevel();
+    }
+}
+
+class botLevel implements bot {
+
+    public botLevel() {
+    }
+
+    public bot combine(top x) {
+        return this;
+    }
+
+    public bot combine(left x) {
+        return this;
+    }
+
+    public bot combine(bot x) {
+        return this;
+    }
+
+    public bot combine(right x) {
+        return this;
+    }
+}
+
+class rightLevel implements right {
+
+    public rightLevel() {
+    }
+
+    public right combine(top x) {
+        return this;
+    }
+
+    public bot combine(left x) {
+        return new botLevel();
+    }
+
+    public bot combine(bot x) {
+        return new botLevel();
+    }
+
+    public right combine(right x) {
+        return this;
+    }
+}
+
 class Try {
 
     public String t;
@@ -9,56 +159,6 @@ class Try {
     public void test1(Try x) {
         System.out.println("entrei1");
         System.out.println(x.toString());
-    }
-
-    public Try_mid combine(Try x) {
-        return new Try_mid(this.t);
-    }
-
-    public Try_bot combine(Try_bot x) {
-        return new Try_bot(this.t);
-    }
-
-    public Try_mid combine(Try_mid x) {
-        return new Try_mid(this.t);
-    }
-}
-
-class Try_mid extends Try_top {
-
-    public Try_mid(String t) {
-        super(this.t);
-    }
-
-    public Try_mid combine(Try x) {
-        return this;
-    }
-
-    public Try_bot combine(Try_bot x) {
-        return new Try_bot(this.t);
-    }
-
-    public Try_mid combine(Try_mid x) {
-        return this;
-    }
-}
-
-class Try_bot extends Try_mid {
-
-    public Try_bot(String t) {
-        super(this.t);
-    }
-
-    public Try_bot combine(Try x) {
-        return this;
-    }
-
-    public Try_bot combine(Try_bot x) {
-        return this;
-    }
-
-    public Try_bot combine(Try_mid x) {
-        return this;
     }
 }
 
@@ -88,73 +188,62 @@ class Try1 {
         System.out.println("entrei1");
         System.out.println(x.toString());
     }
-
-    public Try1_mid combine(Try1 x) {
-        return new Try1_mid(this.t1, this.t2, this.t3, this.t4);
-    }
-
-    public Try1_bot combine(Try1_bot x) {
-        return new Try1_bot(this.t1, this.t2, this.t3, this.t4);
-    }
-
-    public Try1_mid combine(Try1_mid x) {
-        return new Try1_mid(this.t1, this.t2, this.t3, this.t4);
-    }
-}
-
-class Try1_mid extends Try1_top {
-
-    public Try1_mid(String t1, int t2, boolean t3, String t4) {
-        super(this.t1, this.t2, this.t3, this.t4);
-    }
-
-    public Try1_mid combine(Try1 x) {
-        return this;
-    }
-
-    public Try1_bot combine(Try1_bot x) {
-        return new Try1_bot(this.t1, this.t2, this.t3, this.t4);
-    }
-
-    public Try1_mid combine(Try1_mid x) {
-        return this;
-    }
-}
-
-class Try1_bot extends Try1_mid {
-
-    public Try1_bot(String t1, int t2, boolean t3, String t4) {
-        super(this.t1, this.t2, this.t3, this.t4);
-    }
-
-    public Try1_bot combine(Try1 x) {
-        return this;
-    }
-
-    public Try1_bot combine(Try1_bot x) {
-        return this;
-    }
-
-    public Try1_bot combine(Try1_mid x) {
-        return this;
-    }
 }
 
 public class Application_Linear {
 
     public static void main(String[] args) {
+        bot literal_level = new botLevel();
         //top
         Try x = new Try("Top", 1, "afdasfa");
-        //mid
-        Try_mid m = new Try_mid("Middle");
+        top x_level = new topLevel();
+        //right
+        Try r = new Try("Right");
+        right r_level = new rightLevel();
+        //left
+        Try l = new Try("Left");
+        left l_level = new leftLevel();
         //bot
-        Try_bot y = new Try_bot("Bot");
+        Try y = new Try("Bot");
+        bot y_level = new botLevel();
+        y_level = x_level;
         y = x;
-        x = m.combine(x.combine(c.combine(v.combine(b.combine(d)))));
-        x = m + x + c + v + b + d;
-        x = m.combine(y.combine(y));
+        x_level = m_level.combine(d_level.combine(m_level.combine(a_level.combine(c_level.combine(d_level.combine(literal_level))))));
+        x = m + "sad" + d + m.test(a, c, d) + 1 + true;
+        x_level = m_level.combine(y_level.combine(y_level));
         x = m.test1(y) + y;
-        x = y.combine(m);
+        x_level = y_level.combine(m_level);
         x = y + m;
+        x_level = y_level.combine(literal_level);
+        x = y + 1;
+        y_level = literal_level;
+        y = 1;
+        y_level = literal_level;
+        y = "sdsda";
+        y_level = literal_level;
+        y = true;
+        if (x < y && z == 1) {
+            n_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
+            y_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
+            x_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
+            x_level = y_level;
+            x = y;
+            y_level = literal_level;
+            y = 1;
+            n_level = a_level.combine(m_level.combine(y_level));
+            n = a + m.test(y);
+        } else {
+            d_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
+            a_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
+            if (x) {
+                a_level = x_level;
+                a_level = z_level;
+                a = z;
+            } else {
+                d_level = x_level;
+                d_level = m_level.combine(y_level);
+                d = m.test(y);
+            }
+        }
     }
 }

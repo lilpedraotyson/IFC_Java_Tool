@@ -11,14 +11,17 @@ public class Main {
         Lattice lattice = new Lattice();
 
         lattice.addVertex("top");
-        lattice.addVertex("mid");
+        lattice.addVertex("left");
+        lattice.addVertex("right");
         lattice.addVertex("bot");
 
         lattice.setTop("top");
         lattice.setBot("bot");
 
-        lattice.addEdge("bot", "mid");
-        lattice.addEdge("mid", "top");
+        lattice.addEdge("bot", "left");
+        lattice.addEdge("bot", "right");
+        lattice.addEdge("left", "top");
+        lattice.addEdge("right", "top");
 
         lattice.depht();
 

@@ -1,3 +1,5 @@
+import pyryy;
+
 class Try {
     public String t;
 
@@ -36,18 +38,39 @@ public class Application_Linear {
         //top
         Try x = new Try("Top", 1, "afdasfa");
 
-        //mid
-        Try m = new Try("Middle");
+        //right
+        Try r = new Try("Right");
+
+        //left
+        Try l = new Try("Left");
 
         //bot
         Try y = new Try("Bot");
 
         y = x;
 
-        x = m + x + c + v + b + d;
+        x = m + "sad" + d + m.test(a, c, d) + 1 + true;
 
         x = m.test1(y) + y;
 
         x = y + m;
+
+        x = y + 1;
+
+        y = 1;
+        y = "sdsda";
+        y = true;
+
+        if(x < y && z == 1) {
+            x = y;
+            y = 1;
+            n = a + m.test(y);
+        } else {
+            if (x) {
+                a = z;
+            } else {
+                d = m.test(y);
+            }
+        }
     }
 }
