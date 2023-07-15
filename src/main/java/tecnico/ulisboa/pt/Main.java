@@ -11,20 +11,20 @@ public class Main {
         Lattice lattice = new Lattice();
 
         lattice.addVertex("top");
-        lattice.addVertex("left");
-        lattice.addVertex("right");
+        lattice.addVertex("mid");
         lattice.addVertex("bot");
 
         lattice.setTop("top");
         lattice.setBot("bot");
 
-        lattice.addEdge("bot", "left");
-        lattice.addEdge("bot", "right");
-        lattice.addEdge("left", "top");
-        lattice.addEdge("right", "top");
+        lattice.addEdge("bot", "mid");
+        lattice.addEdge("mid", "top");
 
         lattice.depht();
+        /*System.out.println(lattice);
 
+        System.out.println(lattice.meet("bot", "top"));
+        System.out.println(lattice.join("bot", "top"));*/
         ASTParser ast = new ASTParser(lattice, "Application.java", "meet");
 
         //System.out.print(ast);

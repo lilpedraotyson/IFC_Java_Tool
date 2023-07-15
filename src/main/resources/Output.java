@@ -1,153 +1,3 @@
-import pyryy;
-
-interface top {
-
-    public right combine(top x) {
-    }
-
-    public left combine(left x) {
-    }
-
-    public bot combine(bot x) {
-    }
-
-    public right combine(right x) {
-    }
-}
-
-interface left extends top {
-
-    public left combine(top x) {
-    }
-
-    public left combine(left x) {
-    }
-
-    public bot combine(bot x) {
-    }
-
-    public bot combine(right x) {
-    }
-}
-
-interface bot extends left, right {
-
-    public bot combine(top x) {
-    }
-
-    public bot combine(left x) {
-    }
-
-    public bot combine(bot x) {
-    }
-
-    public bot combine(right x) {
-    }
-}
-
-interface right extends top {
-
-    public right combine(top x) {
-    }
-
-    public bot combine(left x) {
-    }
-
-    public bot combine(bot x) {
-    }
-
-    public right combine(right x) {
-    }
-}
-
-class topLevel implements top {
-
-    public topLevel() {
-    }
-
-    public right combine(top x) {
-        return new rightLevel();
-    }
-
-    public left combine(left x) {
-        return new leftLevel();
-    }
-
-    public bot combine(bot x) {
-        return new botLevel();
-    }
-
-    public right combine(right x) {
-        return new rightLevel();
-    }
-}
-
-class leftLevel implements left {
-
-    public leftLevel() {
-    }
-
-    public left combine(top x) {
-        return this;
-    }
-
-    public left combine(left x) {
-        return this;
-    }
-
-    public bot combine(bot x) {
-        return new botLevel();
-    }
-
-    public bot combine(right x) {
-        return new botLevel();
-    }
-}
-
-class botLevel implements bot {
-
-    public botLevel() {
-    }
-
-    public bot combine(top x) {
-        return this;
-    }
-
-    public bot combine(left x) {
-        return this;
-    }
-
-    public bot combine(bot x) {
-        return this;
-    }
-
-    public bot combine(right x) {
-        return this;
-    }
-}
-
-class rightLevel implements right {
-
-    public rightLevel() {
-    }
-
-    public right combine(top x) {
-        return this;
-    }
-
-    public bot combine(left x) {
-        return new botLevel();
-    }
-
-    public bot combine(bot x) {
-        return new botLevel();
-    }
-
-    public right combine(right x) {
-        return this;
-    }
-}
-
 class Try {
 
     public String t;
@@ -159,6 +9,243 @@ class Try {
     public void test1(Try x) {
         System.out.println("entrei1");
         System.out.println(x.toString());
+    }
+
+    public adsaS test1(Try x) {
+        switch(Math.min(this.level(), x.level())) {
+            case 0:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_bot(return_statement.t);
+                } else {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_bot(return_statement.t);
+                    if (x == 3) {
+                        if (y < 50) {
+                            adsaS return_statement = h;
+                            return adsaS_bot(return_statement.t);
+                        }
+                        adsaS return_statement = z;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = b;
+                    return adsaS_bot(return_statement.t);
+                }
+                adsaS return_statement = x;
+                return adsaS_bot(return_statement.t);
+            case 1:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_mid(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_mid(return_statement.t);
+                } else {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_mid(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_mid(return_statement.t);
+                    if (x == 3) {
+                        if (y < 50) {
+                            adsaS return_statement = h;
+                            return adsaS_mid(return_statement.t);
+                        }
+                        adsaS return_statement = z;
+                        return adsaS_mid(return_statement.t);
+                    }
+                    adsaS return_statement = b;
+                    return adsaS_mid(return_statement.t);
+                }
+                adsaS return_statement = x;
+                return adsaS_mid(return_statement.t);
+        }
+    }
+
+    public int level() {
+        return 2;
+    }
+}
+
+class Try_mid extends Try {
+
+    public Try_mid(String t) {
+        super(this.t);
+    }
+
+    @Override()
+    public int level() {
+        return 1;
+    }
+
+    @Override()
+    public void test1(Try x) {
+        System.out.println("entrei1");
+        System.out.println(x.toString());
+    }
+
+    @Override()
+    public adsaS test1(Try x) {
+        switch(Math.min(this.level(), x.level())) {
+            case 2:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_mid(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_mid(return_statement.t);
+                } else {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_mid(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_mid(return_statement.t);
+                    if (x == 3) {
+                        if (y < 50) {
+                            adsaS return_statement = h;
+                            return adsaS_mid(return_statement.t);
+                        }
+                        adsaS return_statement = z;
+                        return adsaS_mid(return_statement.t);
+                    }
+                    adsaS return_statement = b;
+                    return adsaS_mid(return_statement.t);
+                }
+                adsaS return_statement = x;
+                return adsaS_mid(return_statement.t);
+            case 0:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_bot(return_statement.t);
+                } else {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_bot(return_statement.t);
+                    if (x == 3) {
+                        if (y < 50) {
+                            adsaS return_statement = h;
+                            return adsaS_bot(return_statement.t);
+                        }
+                        adsaS return_statement = z;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = b;
+                    return adsaS_bot(return_statement.t);
+                }
+                adsaS return_statement = x;
+                return adsaS_bot(return_statement.t);
+        }
+    }
+}
+
+class Try_bot extends Try_mid {
+
+    public Try_bot(String t) {
+        super(this.t);
+    }
+
+    @Override()
+    public int level() {
+        return 0;
+    }
+
+    @Override()
+    public void test1(Try x) {
+        System.out.println("entrei1");
+        System.out.println(x.toString());
+    }
+
+    @Override()
+    public adsaS test1(Try x) {
+        switch(Math.min(this.level(), x.level())) {
+            case 2:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_bot(return_statement.t);
+                } else {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_bot(return_statement.t);
+                    if (x == 3) {
+                        if (y < 50) {
+                            adsaS return_statement = h;
+                            return adsaS_bot(return_statement.t);
+                        }
+                        adsaS return_statement = z;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = b;
+                    return adsaS_bot(return_statement.t);
+                }
+                adsaS return_statement = x;
+                return adsaS_bot(return_statement.t);
+            case 1:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_bot(return_statement.t);
+                } else {
+                    if (x == c) {
+                        adsaS return_statement = d;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = a;
+                    return adsaS_bot(return_statement.t);
+                    if (x == 3) {
+                        if (y < 50) {
+                            adsaS return_statement = h;
+                            return adsaS_bot(return_statement.t);
+                        }
+                        adsaS return_statement = z;
+                        return adsaS_bot(return_statement.t);
+                    }
+                    adsaS return_statement = b;
+                    return adsaS_bot(return_statement.t);
+                }
+                adsaS return_statement = x;
+                return adsaS_bot(return_statement.t);
+        }
     }
 }
 
@@ -188,61 +275,75 @@ class Try1 {
         System.out.println("entrei1");
         System.out.println(x.toString());
     }
+
+    public int level() {
+        return 2;
+    }
 }
 
-public class Application_Linear {
+class Try1_mid extends Try1 {
+
+    public Try1_mid(String t1, int t2, boolean t3, String t4) {
+        super(this.t1, this.t2, this.t3, this.t4);
+    }
+
+    @Override()
+    public int level() {
+        return 1;
+    }
+
+    @Override()
+    public void test1(Try x) {
+        System.out.println("entrei1");
+        System.out.println(x.toString());
+    }
+}
+
+class Try1_bot extends Try1_mid {
+
+    public Try1_bot(String t1, int t2, boolean t3, String t4) {
+        super(this.t1, this.t2, this.t3, this.t4);
+    }
+
+    @Override()
+    public int level() {
+        return 0;
+    }
+
+    @Override()
+    public void test1(Try x) {
+        System.out.println("entrei1");
+        System.out.println(x.toString());
+    }
+}
+
+public class Application {
 
     public static void main(String[] args) {
-        bot literal_level = new botLevel();
         //top
         Try x = new Try("Top", 1, "afdasfa");
-        top x_level = new topLevel();
-        //right
-        Try r = new Try("Right");
-        right r_level = new rightLevel();
-        //left
-        Try l = new Try("Left");
-        left l_level = new leftLevel();
+        //mid
+        Try_mid m = new Try_mid("mid", 2, "sadas");
         //bot
-        Try y = new Try("Bot");
-        bot y_level = new botLevel();
-        y_level = x_level;
-        y = x;
-        x_level = m_level.combine(d_level.combine(m_level.combine(a_level.combine(c_level.combine(d_level.combine(literal_level))))));
-        x = m + "sad" + d + m.test(a, c, d) + 1 + true;
-        x_level = m_level.combine(y_level.combine(y_level));
-        x = m.test1(y) + y;
-        x_level = y_level.combine(m_level);
-        x = y + m;
-        x_level = y_level.combine(literal_level);
-        x = y + 1;
-        y_level = literal_level;
-        y = 1;
-        y_level = literal_level;
-        y = "sdsda";
-        y_level = literal_level;
-        y = true;
+        Try_bot y = new Try_bot("Bot");
+        this.y = x;
+        //mid
+        Try_mid z = (Try_mid) m + "sad" + d + m.test(a, c, d) + 1 + true;
+        x = (Try) m.test1(y) + y;
+        x = (Try) y + m;
+        x = (Try) y + 1;
+        y = (Try_bot) 1;
+        y = (Try_bot) "sdsda";
+        y = (Try_bot) true;
         if (x < y && z == 1) {
-            n_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
-            y_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
-            x_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
-            x_level = y_level;
             x = y;
-            y_level = literal_level;
-            y = 1;
-            n_level = a_level.combine(m_level.combine(y_level));
-            n = a + m.test(y);
+            y = (Try_bot) 1;
+            m = (Try_mid) a + m.test(y);
         } else {
-            d_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
-            a_level = x_level.combine(y_level.combine(z_level.combine(literal_level)));
             if (x) {
-                a_level = x_level;
-                a_level = z_level;
-                a = z;
+                m = z;
             } else {
-                d_level = x_level;
-                d_level = m_level.combine(y_level);
-                d = m.test(y);
+                z = (Try_mid) m.test(y);
             }
         }
     }

@@ -1,5 +1,3 @@
-import pyryy;
-
 class Try {
     public String t;
 
@@ -8,6 +6,26 @@ class Try {
     public void test1(Try x) {
         System.out.println("entrei1");
         System.out.println(x.toString());
+    }
+
+    public adsaS test1(Try x) {
+        x = z;
+        z = c;
+        if (x == b) {
+            if (x == c) {
+                return d;
+            }
+            return a;
+        } else {
+            if (x == 3) {
+                if (y < 50) {
+                    return h;
+                }
+                return z;
+            }
+            return b;
+        }
+        return x;
     }
 }
 
@@ -33,23 +51,21 @@ class Try1 {
     }
 }
 
-public class Application_Linear {
+public class Application {
     public static void main(String[] args) {
         //top
         Try x = new Try("Top", 1, "afdasfa");
 
-        //right
-        Try r = new Try("Right");
-
-        //left
-        Try l = new Try("Left");
+        //mid
+        Try m = new Try("mid", 2, "sadas");
 
         //bot
         Try y = new Try("Bot");
 
-        y = x;
+        this.y = x;
 
-        x = m + "sad" + d + m.test(a, c, d) + 1 + true;
+        //mid
+        Try z = m + "sad" + d + m.test(a, c, d) + 1 + true;
 
         x = m.test1(y) + y;
 
@@ -64,12 +80,12 @@ public class Application_Linear {
         if(x < y && z == 1) {
             x = y;
             y = 1;
-            n = a + m.test(y);
+            m = a + m.test(y);
         } else {
             if (x) {
-                a = z;
+                m = z;
             } else {
-                d = m.test(y);
+                z = m.test(y);
             }
         }
     }

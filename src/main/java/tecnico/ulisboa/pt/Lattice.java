@@ -4,8 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Lattice {
-    private Map<String, List<String>> matrix = new HashMap<>();
-    private Map<String, List<String>> reverse_matrix = new HashMap<>();
+    private Map<String, String> matrix = new HashMap<>();
     private String top;
     private String bot;
     private Map<String, Integer> level_depht = new HashMap<>();
@@ -24,15 +23,12 @@ public class Lattice {
         return this.bot;
     }
 
-    public Map<String, List<String>> getMatrix() {return this.matrix;}
+    public Map<String, String> getMatrix() {return this.matrix;}
 
-    public Map<String, List<String>> getReverseMatrix() {
-        return this.reverse_matrix;
-    }
+    public Map<String, Integer> getLevelDepht() {return this.level_depht;}
 
     public void addVertex(String level) {
-        this.matrix.put(level, new LinkedList<>());
-        this.reverse_matrix.put(level, new LinkedList<>());
+        this.matrix.put(level, "");
     }
 
     public int levelCount() {
@@ -46,8 +42,7 @@ public class Lattice {
         if (!this.matrix.containsKey(destination))
             addVertex(destination);
 
-        this.matrix.get(source).add(destination);
-        this.reverse_matrix.get(destination).add(source);
+        this.matrix.replace(source, destination);
     }
 
     public void depht() {
@@ -63,17 +58,19 @@ public class Lattice {
         queue.add(this.bot);
         this.level_depht.put(this.bot, 0);
 
-        String node;
+        String node = "";
         while (queue.size() != 0) {
             node = queue.poll();
 
-            List<String> can_flow = matrix.get(node);
-            for (String level : can_flow) {
-                if (!visited.get(level)) {
-                    visited.replace(level, true);
-                    queue.add(level);
-                    this.level_depht.put(level, this.level_depht.get(node)+1);
-                }
+            if (node.equals(this.top)) {
+                break;
+            }
+
+            String can_flow = matrix.get(node);
+            if (!visited.get(can_flow)) {
+                visited.replace(can_flow, true);
+                queue.add(can_flow);
+                this.level_depht.put(can_flow, this.level_depht.get(node)+1);
             }
         }
 
@@ -88,90 +85,35 @@ public class Lattice {
         System.out.print(builder);*/
     }
 
-    public void DFS_reverse(String node, Map<String, Boolean> visited, List<String> ancestors) {
-        visited.replace(node, true);
-
-        List<String> can_flow = reverse_matrix.get(node);
-        for (String l : can_flow) {
-            if (!visited.get(l)) {
-                DFS_reverse(l, visited, ancestors);
-                ancestors.add(l);
-            }
-        }
-    }
-
-    public void DFS(String node, Map<String, Boolean> visited, List<String> descendants) {
-        visited.replace(node, true);
-
-        List<String> can_flow = matrix.get(node);
-        for (String l : can_flow) {
-            if (!visited.get(l)) {
-                DFS(l, visited, descendants);
-                descendants.add(l);
-            }
-        }
-    }
-
-    public List<String> getAncestors(String level) {
-        List<String> ancestors = new LinkedList<>();
-
-        Map<String, Boolean> visited = new HashMap<>();
-
-        for (String l : reverse_matrix.keySet()) {
-            visited.put(l, false);
-        }
-        ancestors.add(level);
-        DFS_reverse(level, visited, ancestors);
-
-        return ancestors;
-    }
-
-    public List<String> getDescendants(String level) {
-        List<String> descendants = new LinkedList<>();
-
-        Map<String, Boolean> visited = new HashMap<>();
-
-        for (String l : matrix.keySet()) {
-            visited.put(l, false);
-        }
-        descendants.add(level);
-        DFS(level, visited, descendants);
-
-        return descendants;
-    }
-
     public String meet(String level1, String level2) {
         String result = "";
-        List<String> ancestors1 = getAncestors(level1);
-        List<String> ancestors2 = getAncestors(level2);
+        int level1_depht = this.level_depht.get(level1);
+        int level2_depht = this.level_depht.get(level2);
+        int lmin = Math.min(this.level_depht.get(level1), this.level_depht.get(level2));
 
-        Set<String> common_levels = ancestors1.stream().distinct().filter(ancestors2::contains).collect(Collectors.toSet());
-
-        int highest = -1;
-        int current_depht;
-        for (String common : common_levels) {
-            current_depht = this.level_depht.get(common);
-            if (current_depht > highest)
-                result = common;
-                highest = current_depht;
+        if (lmin == level1_depht) {
+            result = level1;
+        } else if (lmin == level2_depht) {
+            result = level2;
+        } else {
+            System.out.println("Erro meet");
         }
+
         return result;
     }
 
     public String join(String level1, String level2) {
         String result = "";
-        List<String> descendants1 = getDescendants(level1);
-        List<String> descendants2 = getDescendants(level2);
+        int level1_depht = this.level_depht.get(level1);
+        int level2_depht = this.level_depht.get(level2);
+        int lmax = Math.max(this.level_depht.get(level1), this.level_depht.get(level2));
 
-        Set<String> common_levels = descendants1.stream().distinct().filter(descendants2::contains).collect(Collectors.toSet());
-
-        int lowest = matrix.keySet().size();
-        int current_depht;
-        for (String common : common_levels) {
-            current_depht = this.level_depht.get(common);
-            if (current_depht < lowest)
-                result = common;
-                lowest = current_depht;
+        if (lmax == level1_depht) {
+            result = level1;
+        } else if (lmax == level2_depht) {
+            result = level2;
+        } else {
+            System.out.println("Erro meet");
         }
         return result;
     }
@@ -183,19 +125,7 @@ public class Lattice {
         builder.append("Bottom level: " + this.bot + "\n");
 
         for (String level : matrix.keySet()) {
-            builder.append(level + ": ");
-            for (String can_flow_level : matrix.get(level)) {
-                builder.append(can_flow_level + ", ");
-            }
-            builder.append("\n");
-        }
-
-        builder.append("Reverse: " + "\n");
-        for (String level : reverse_matrix.keySet()) {
-            builder.append(level + ": ");
-            for (String can_flow_level : reverse_matrix.get(level)) {
-                builder.append(can_flow_level + ", ");
-            }
+            builder.append(level + ": " + matrix.get(level));
             builder.append("\n");
         }
 

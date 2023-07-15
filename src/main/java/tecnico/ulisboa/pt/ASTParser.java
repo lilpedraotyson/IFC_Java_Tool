@@ -6,18 +6,17 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.*;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.TypeParameter;
+import com.github.javaparser.ast.type.UnknownType;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.github.javaparser.ast.expr.AssignExpr.Operator.ASSIGN;
 
@@ -25,6 +24,9 @@ public class ASTParser extends ModifierVisitor<Void> {
     private Lattice lattice;
     public CompilationUnit cu;
     private String combination;
+    private HashMap<String, List<BodyDeclaration<?>>> custom_classes = new HashMap<>();
+    private HashMap<String, String> variable_level = new HashMap<>();
+
 
     public ASTParser(Lattice l, String filename, String combination) {
         this.lattice = l;
@@ -33,9 +35,27 @@ public class ASTParser extends ModifierVisitor<Void> {
         SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(Main.class).resolve("src/main/resources"));
         this.cu = sourceRoot.parse("", filename);
 
-        this.LevelsToClassStructure();
-        this.addLiteralVariableDeclarator();
         this.visit(cu, null);
+    }
+
+    @Override
+    public Visitable visit(ClassOrInterfaceDeclaration c, Void arg) {
+        if (!c.getNameAsString().equals("Application")) {
+            List<BodyDeclaration<?>> fields = c.getMembers().stream().filter(n -> n.isFieldDeclaration()).collect(Collectors.toList());
+            this.custom_classes.put(c.getNameAsString(), fields);
+
+            this.SecurityLevelsToClasses(c);
+            this.overrideMethods(c.getNameAsString(), c.getMethods(), true, this.lattice.getTop());
+
+            MethodDeclaration addedMethod = c.addMethod("level");
+            addedMethod.setModifiers(Modifier.Keyword.PUBLIC);
+            addedMethod.setType("int");
+            BlockStmt body = new BlockStmt();
+            body.addStatement(new ReturnStmt(this.lattice.getLevelDepht().get(this.lattice.getTop()).toString()));
+            addedMethod.setBody(body);
+        }
+        super.visit(c, arg);
+        return c;
     }
 
     @Override
@@ -49,23 +69,14 @@ public class ASTParser extends ModifierVisitor<Void> {
 
     @Override
     public Visitable visit(AssignExpr a, Void arg) {
-        if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals("Application_Linear")) {
+        if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals("Application")) {
             this.assignmentExprRewrite(a);
         }
         super.visit(a, arg);
         return a;
     }
 
-    @Override
-    public Visitable visit(IfStmt a, Void arg) {
-        if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals("Application_Linear")) {
-            this.ifStmtRewrite(a, arg);
-        }
-        super.visit(a, arg);
-        return a;
-    }
-
-    private void addMethods(ClassOrInterfaceDeclaration node, NodeList<MethodDeclaration> methods) {
+    private void addMethods(ClassOrInterfaceDeclaration node, List<MethodDeclaration> methods) {
         for (MethodDeclaration method : methods) {
             MethodDeclaration addedMethod = node.addMethod(method.getNameAsString());
             addedMethod.setModifiers(method.getModifiers());
@@ -75,228 +86,209 @@ public class ASTParser extends ModifierVisitor<Void> {
         }
     }
 
-    private NodeList<MethodDeclaration> combination(String class_name, String class_level, String combination, Boolean Interface) {
-        NodeList<MethodDeclaration> methods = new NodeList<>();
-
-        Map<String, List<String>> Matrix = this.lattice.getMatrix();
+    private void SecurityLevelsToClasses(ClassOrInterfaceDeclaration node) {
+        Map<String, String> Matrix = this.lattice.getMatrix();
 
         for (String level : Matrix.keySet()) {
-            MethodDeclaration method = new MethodDeclaration();
-            method.setName("combine");
-            method.setModifiers(Modifier.Keyword.PUBLIC);
+            if (!level.equals(this.lattice.getTop())) {
+                ClassOrInterfaceDeclaration newClass = new ClassOrInterfaceDeclaration();
+                ConstructorDeclaration newConstructor = newClass.addConstructor(Modifier.Keyword.PUBLIC);
+                MethodDeclaration levelMethod = newClass.addMethod("level");
+                newClass.setInterface(false);
+                newClass.setName(node.getNameAsString() + "_" + level);
 
-            String type = "";
-            String parameter = "";
-            String result = "";
-            if (combination.equals("meet")) {
-                result = lattice.meet(class_level, level);
-            } else {
-                result = lattice.join(class_level, level);
-            }
+                newConstructor.setName(node.getNameAsString() + "_" + level);
 
-            type = result;
-            parameter = level;
+                NodeList<Parameter> arguments = new NodeList<>();
 
-            method.setType(new TypeParameter(type));
-            method.setParameters(new NodeList<Parameter>(new Parameter(new TypeParameter(parameter), "x")));
+                BlockStmt body = new BlockStmt();
+                String statement = "super(";
 
-            BlockStmt body = new BlockStmt();
-
-            if(!Interface) {
-                String statement = "return ";
-
-                if (!result.equals(class_level)) {
-                    statement = statement + "new " + type + "Level()";
-                } else {
-                    statement = statement + "this";
+                for (BodyDeclaration<?> field : this.custom_classes.get(node.getNameAsString())) {
+                    arguments.add(new Parameter(new TypeParameter(field.toFieldDeclaration().get().getCommonType().toString()),
+                            field.toFieldDeclaration().get().getVariables().get(0).toString()));
+                    statement = statement + "this." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
                 }
 
-                statement = statement + ";";
+                newConstructor.setParameters(arguments);
+
+                statement = statement.substring(0, statement.length() - 2);
+                statement = statement + ");";
                 body.addStatement(statement);
-                method.setBody(body);
-            }
+                newConstructor.setBody(body);
 
-            methods.add(method);
-        }
+                NodeList<ClassOrInterfaceType> inheritance = new NodeList<>();
 
-        return methods;
-    }
+                if (Matrix.get(level).equals(this.lattice.getTop())) {
+                    inheritance.add(new ClassOrInterfaceType(node.getNameAsString()));
+                } else {
+                    inheritance.add(new ClassOrInterfaceType(node.getNameAsString() + "_" + Matrix.get(level)));
+                }
 
-    private void LevelsToClassStructure() {
-        Map<String, List<String>> Matrix = this.lattice.getMatrix();
-        ArrayList<ClassOrInterfaceDeclaration> level_classes = new ArrayList<>();
-        ArrayList<ClassOrInterfaceDeclaration> level_Interfaces = new ArrayList<>();
+                levelMethod.setModifiers(Modifier.Keyword.PUBLIC);
+                levelMethod.setType("int");
+                BlockStmt body_method = new BlockStmt();
+                body_method.addStatement(new ReturnStmt(this.lattice.getLevelDepht().get(level).toString().toString()));
+                levelMethod.setBody(body_method);
 
-        for (String level : Matrix.keySet()) {
-            ClassOrInterfaceDeclaration newInterface = new ClassOrInterfaceDeclaration();
-            ClassOrInterfaceDeclaration newClass = new ClassOrInterfaceDeclaration();
-            ConstructorDeclaration newConstructor = newClass.addConstructor(Modifier.Keyword.PUBLIC);
-            newInterface.setInterface(true);
-            newClass.setInterface(false);
-            newInterface.setName(level);
-            newClass.setName(level + "Level");
+                newClass.setExtendedTypes(inheritance);
 
-            newConstructor.setName(level + "Level");
+                addMethods(newClass, node.getMethods());
+                this.overrideMethods(node.getNameAsString(), newClass.getMethods(), false, level);
 
-            NodeList<ClassOrInterfaceType> inheritance = new NodeList<>();
-            for (String inheritedLevel : Matrix.get(level)) {
-                inheritance.add(new ClassOrInterfaceType(inheritedLevel));
-            }
-
-            this.addMethods(newInterface, this.combination(level, level, this.combination, true));
-            this.addMethods(newClass, this.combination(level, level, this.combination, false));
-
-            newInterface.setExtendedTypes(inheritance);
-            newClass.setImplementedTypes(new NodeList<ClassOrInterfaceType>(new ClassOrInterfaceType(level)));
-
-            level_Interfaces.add(newInterface);
-            level_classes.add(newClass);
-        }
-
-        for (int i = 0; i < level_Interfaces.size(); i++) {
-            if(i == 0) {
-                cu.getTypes().addFirst(level_Interfaces.get(i));
-            } else {
-                cu.getTypes().addAfter(level_Interfaces.get(i), level_Interfaces.get(i-1));
-            }
-        }
-
-        for (int i = 0; i < level_classes.size(); i++) {
-            if(i == 0) {
-                cu.getTypes().addAfter(level_classes.get(i), level_Interfaces.get(level_Interfaces.size()-1));
-            } else {
-                cu.getTypes().addAfter(level_classes.get(i), level_classes.get(i-1));
+                cu.getTypes().addAfter(newClass, node);
             }
         }
     }
 
-    private void addLiteralVariableDeclarator() {
-        MethodDeclaration main = cu.getClassByName("Application_Linear").get().getMethodsByName("main").get(0);
-        BlockStmt block = main.getBody().get();
-
-        VariableDeclarationExpr declaration = new VariableDeclarationExpr(new ClassOrInterfaceType(this.lattice.getBot()), "literal_level");
-        declaration.getVariable(0).setInitializer("new "+ this.lattice.getBot() + "Level()");
-        ExpressionStmt newStmt = new ExpressionStmt(declaration);
-
-        block.addStatement(0, newStmt);
+    private String combinationResult(String level1, String level2) {
+        String result = "";
+        if (this.combination.equals("meet")) {
+            result = this.lattice.meet(level1, level2);
+        } else {
+            result = this.lattice.join(level1, level2);
+        }
+        return result.equals(this.lattice.getTop()) ? "" : result;
     }
+
+    private void addReturnStatement(NodeList<Statement> statements, MethodDeclaration method, Statement current_statement,
+                                    String class_level, String class_name, String level) {
+
+        statements.add(new ExpressionStmt(new AssignExpr(new NameExpr(method.getTypeAsString() + " return_statement"),
+                current_statement.asReturnStmt().getExpression().get(), ASSIGN)));
+
+        String expression = method.getTypeAsString() + "_" + combinationResult(level, class_level) + "(";
+
+        for (BodyDeclaration<?> field : this.custom_classes.get(class_name)) {
+            expression = expression + "return_statement." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
+        }
+        expression = expression.substring(0, expression.length() - 2);
+        expression = expression + ")";
+
+        statements.add(new ReturnStmt(expression));
+    }
+
+    private void changeIfStatement(MethodDeclaration method, IfStmt if_statement, String class_level,
+                                   String class_name, String level) {
+
+        NodeList<Statement> statements = new NodeList<>();
+
+        if (if_statement.hasThenBlock()) {
+            for (Statement statement : if_statement.getThenStmt().asBlockStmt().getStatements()) {
+                if (statement.isReturnStmt()) {
+                    addReturnStatement(statements, method, statement, class_level, class_name, level);
+                } else {
+                    if (statement.isIfStmt()) {
+                        changeIfStatement(method, statement.asIfStmt(), class_level, class_name, level);
+                    }
+                    statements.add(statement);
+                }
+            }
+            BlockStmt newThenBlock = new BlockStmt();
+            newThenBlock.copyStatements(statements);
+            if_statement.setThenStmt(newThenBlock);
+        }
+
+        if (if_statement.hasElseBlock()) {
+            for (Statement statement : if_statement.getElseStmt().get().asBlockStmt().getStatements()) {
+                if (statement.isReturnStmt()) {
+                    addReturnStatement(statements, method, statement, class_level, class_name, level);
+                } else {
+                    if (statement.isIfStmt()) {
+                        changeIfStatement(method, statement.asIfStmt(), class_level, class_name, level);
+                    }
+                    statements.add(statement);
+                }
+            }
+            BlockStmt newElseBlock = new BlockStmt();
+            newElseBlock.copyStatements(statements);
+            if_statement.setElseStmt(newElseBlock);
+        }
+    }
+
+    private void addOverride(String class_level, String class_name, MethodDeclaration method) {
+        BlockStmt body = method.getBody().get();
+        SwitchStmt sw = new SwitchStmt();
+        NodeList<SwitchEntry> entrys = new NodeList<>();
+
+        NodeList<Expression> s_selector_arguments = new NodeList<>();
+        s_selector_arguments.add(new NameExpr("this.level()"));
+        for (Parameter par : method.getParameters()) {
+            s_selector_arguments.add(new NameExpr(par.getNameAsString() + ".level()"));
+        }
+
+        if (this.combination.equals("meet")) {
+            sw.setSelector(new MethodCallExpr(new NameExpr("Math"), "min", s_selector_arguments));
+        } else if (this.combination.equals("join")) {
+            sw.setSelector(new MethodCallExpr(new NameExpr("Math"), "max", s_selector_arguments));
+        }
+
+        for (String level : this.lattice.getMatrix().keySet()) {
+            NodeList<Statement> statements = new NodeList<>();
+            BlockStmt newBody = new BlockStmt();
+            newBody.copyStatements(body);
+
+            if (!level.equals(class_level)) {
+                for (Statement statement : newBody.getStatements()) {
+                    if (statement.isReturnStmt()) {
+                        addReturnStatement(statements, method, statement, class_level, class_name, level);
+                    } else {
+                        if (statement.isIfStmt()) {
+                            changeIfStatement(method, statement.asIfStmt(), class_level, class_name, level);
+                        }
+                        statements.add(statement);
+                    }
+                }
+                entrys.add(new SwitchEntry(new NodeList<>(new IntegerLiteralExpr(this.lattice.getLevelDepht().get(level)))
+                                          , SwitchEntry.Type.STATEMENT_GROUP , statements));
+            }
+        }
+
+        sw.setEntries(entrys);
+        method.setBody(new BlockStmt(new NodeList<Statement>(sw)));
+    }
+
+    private void overrideMethods(String class_name, List<MethodDeclaration> methods, boolean top_class, String level) {
+        if (top_class == false) {
+            for (MethodDeclaration method : methods) {
+                method.addAnnotation("Override");
+                if (!method.getNameAsString().equals("level") && !method.getType().isVoidType())
+                    addOverride(level, class_name, method);
+            }
+        } else {
+            for (MethodDeclaration method : methods) {
+                if (!method.getNameAsString().equals("level") && !method.getType().isVoidType())
+                    addOverride(level, class_name, method);
+            }
+        }
+    }
+
     private void variableDeclarationRewrite(VariableDeclarationExpr expr, String level) {
         VariableDeclarator variable = (VariableDeclarator) expr.getChildNodes().get(0);
 
-        VariableDeclarationExpr declaration = new VariableDeclarationExpr(new ClassOrInterfaceType(level), variable.getName().toString() + "_level");
-        declaration.getVariable(0).setInitializer("new "+ level + "Level()");
-        ExpressionStmt newStmt = new ExpressionStmt(declaration);
+        String classLevel = "";
+        String initializer = variable.getInitializer().get().toString();
 
-        BlockStmt block = expr.findAncestor(BlockStmt.class).get();
-        int index = 0;
-        for (Statement s : block.getStatements()) {
-            if (s.isExpressionStmt()) {
-                if (s.asExpressionStmt().getExpression().toString().equals(expr.toString())) {
-                    break;
-                }
-            }
-            index = index + 1;
-        }
-        block.addStatement(index+1, newStmt);
-    }
-
-    private void createMethodExpression(ArrayList<Expression> variables, MethodCallExpr valueExpr, int index, boolean literal) {
-        MethodCallExpr newExpr;
-        if (index + 1 < variables.size()) {
-            newExpr = new MethodCallExpr();
-            newExpr.setScope(new NameExpr(variables.get(index).toString() + "_level"));
-            newExpr.setName("combine");
-            valueExpr.setArguments(new NodeList<Expression>(newExpr));
-            createMethodExpression(variables, newExpr, index + 1, literal);
+        if (!level.equals(this.lattice.getTop())) {
+            classLevel = variable.getType().toString() + "_" + level;
         } else {
-            if(!literal) {
-                valueExpr.setArguments(new NodeList<Expression>(new NameExpr(variables.get(index).toString() + "_level")));
-            } else {
-                newExpr = new MethodCallExpr(new NameExpr(variables.get(index).toString() + "_level"),"combine");
-                newExpr.setArguments(new NodeList<Expression>(new NameExpr("literal_level")));
-                valueExpr.setArguments(new NodeList<Expression>(newExpr));
-            }
+            classLevel = variable.getType().toString();
+        }
+
+        this.variable_level.put(variable.getNameAsString().toString(), classLevel);
+        variable.setType(classLevel);
+
+        if (variable.getInitializer().get().isObjectCreationExpr()) {
+            variable.setInitializer("new " + variable.getType().toString() + initializer.substring(initializer.indexOf("("), initializer.lastIndexOf(")") + 1));
+        } else {
+            variable.setInitializer(new CastExpr(variable.getType(), variable.getInitializer().get()));
         }
     }
 
     private void assignmentExprRewrite(AssignExpr expr) {
-        ArrayList<Expression> variables = new ArrayList<>();
-
-        if (expr.getTarget().toString().contains("_level")) {
-            return;
+        if (expr.getTarget().isNameExpr() && !expr.getValue().isNameExpr()) {
+            expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(expr.getTarget().toString())), expr.getValue()));
         }
-
-        ExpressionStmt newStmt;
-        if (!expr.getValue().getClass().getSimpleName().equals("NameExpr") && !expr.getValue().getClass().getSimpleName().contains("LiteralExpr")) {
-            variables.addAll(expr.getValue().findAll(NameExpr.class));
-            MethodCallExpr valueExpr = new MethodCallExpr();
-            valueExpr.setName("combine");
-            valueExpr.setScope(new NameExpr(variables.get(0).toString() + "_level"));
-
-            if (variables.size() > 1) {
-                createMethodExpression(variables, valueExpr, 1, expr.getValue().findAll(LiteralExpr.class).size() > 0);
-            } else {
-                valueExpr.setArguments(new NodeList<Expression>(new NameExpr("literal_level")));
-            }
-
-            newStmt = new ExpressionStmt(new AssignExpr(new NameExpr(expr.getTarget().toString() + "_level"), valueExpr, ASSIGN));
-
-        } else {
-            if(expr.getValue().getClass().getSimpleName().equals("NameExpr")) {
-                newStmt = new ExpressionStmt(new AssignExpr(new NameExpr(expr.getTarget().toString() + "_level"), new NameExpr(expr.getValue().toString() + "_level"), ASSIGN));
-            } else {
-                newStmt = new ExpressionStmt(new AssignExpr(new NameExpr(expr.getTarget().toString() + "_level"), new NameExpr("literal_level"), ASSIGN));
-            }
-        }
-
-        BlockStmt block = expr.findAncestor(BlockStmt.class).get();
-        int index = 0;
-        for (Statement s : block.getStatements()) {
-            if (s.isExpressionStmt()) {
-                if (s.asExpressionStmt().getExpression().toString().equals(expr.toString())) {
-                    break;
-                }
-            }
-            index = index + 1;
-        }
-        block.addStatement(index, newStmt);
-    }
-
-    private void ifStmtRewrite(IfStmt stmt, Void arg) {
-        ArrayList<Expression> variables = new ArrayList<>();
-
-        Expression level_condition_expression;
-        if (!stmt.getCondition().getClass().getSimpleName().equals("NameExpr") && !stmt.getCondition().getClass().getSimpleName().contains("LiteralExpr")) {
-            variables.addAll(stmt.getCondition().findAll(NameExpr.class));
-            MethodCallExpr valueExpr = new MethodCallExpr();
-            valueExpr.setName("combine");
-            valueExpr.setScope(new NameExpr(variables.get(0).toString() + "_level"));
-
-            if (variables.size() > 1) {
-                createMethodExpression(variables, valueExpr, 1, stmt.getCondition().findAll(LiteralExpr.class).size() > 0);
-            } else {
-                valueExpr.setArguments(new NodeList<Expression>(new NameExpr("literal_level")));
-            }
-
-            level_condition_expression = valueExpr;
-        } else {
-            if(stmt.getCondition().getClass().getSimpleName().equals("NameExpr")) {
-                level_condition_expression = new NameExpr(stmt.getCondition().toString() + "_level");
-            } else {
-                level_condition_expression = new NameExpr("literal_level");
-            }
-        }
-
-        BlockStmt thenStmt = (BlockStmt) stmt.getThenStmt();
-
-        if (stmt.hasElseBlock()) {
-            BlockStmt elseStmt = (BlockStmt) stmt.getElseStmt().get();
-            elseStmt.findAll(AssignExpr.class).forEach(expr -> elseStmt.addStatement(0, new ExpressionStmt(new AssignExpr(
-                    new NameExpr(expr.getTarget().toString() + "_level"), level_condition_expression, ASSIGN))));
-        }
-
-        thenStmt.findAll(AssignExpr.class).forEach(expr -> thenStmt.addStatement(0, new ExpressionStmt(new AssignExpr(
-                new NameExpr(expr.getTarget().toString() + "_level"), level_condition_expression, ASSIGN))));
     }
 
     public String toString() {
