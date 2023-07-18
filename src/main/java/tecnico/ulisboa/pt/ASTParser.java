@@ -121,7 +121,6 @@ public class ASTParser extends ModifierVisitor<Void> {
 
         } else if (c.getContent().equals("}")) {
             String variable = this.declassification_stack.pop();
-            System.out.println(variable);
             c.getCommentedNode().get().findAll(NameExpr.class).forEach(n -> {
                 if (n.getNameAsString().equals(this.declassification_variables.get(variable))) {
                     n.setName(variable);
