@@ -8,7 +8,7 @@ class Try {
         System.out.println(x.toString());
     }
 
-    public adsaS test1(Try x) {
+    public Try1 test1(Try x) {
         x = z;
         z = c;
         if (x == b) {
@@ -67,6 +67,7 @@ public class Application {
         //mid
         Try z = m + "sad" + d + m.test(a, c, d) + 1 + true;
 
+        //declassification(x, mid) {
         x = m.test1(y) + y;
 
         x = y + m;
@@ -74,11 +75,15 @@ public class Application {
         x = y + 1;
 
         y = 1;
-        y = "sdsda";
-        y = true;
 
+        //declassification(y, top) {
+        y = y + y;
+        y = true;
+        x = 32;
         if(x < y && z == 1) {
+            //}
             x = y;
+            //}
             y = 1;
             m = a + m.test(y);
         } else {

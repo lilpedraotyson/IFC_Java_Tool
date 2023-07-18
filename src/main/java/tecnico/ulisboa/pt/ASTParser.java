@@ -9,13 +9,14 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.TypeParameter;
-import com.github.javaparser.ast.type.UnknownType;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.github.javaparser.ast.expr.AssignExpr.Operator.ASSIGN;
@@ -26,14 +27,26 @@ public class ASTParser extends ModifierVisitor<Void> {
     private String combination;
     private HashMap<String, List<BodyDeclaration<?>>> custom_classes = new HashMap<>();
     private HashMap<String, String> variable_level = new HashMap<>();
+    private HashMap<String, String> declassification_variables = new HashMap<>();
+    private Stack<String> declassification_stack = new Stack<>();
+    private Integer count_declassification;
 
 
     public ASTParser(Lattice l, String filename, String combination) {
         this.lattice = l;
         this.combination = combination;
+        this.count_declassification = 0;
 
         SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(Main.class).resolve("src/main/resources"));
         this.cu = sourceRoot.parse("", filename);
+
+        List<ClassOrInterfaceDeclaration> classes = cu.findAll(ClassOrInterfaceDeclaration.class).stream().collect(Collectors.toList());
+        for (ClassOrInterfaceDeclaration c : classes) {
+            if (!c.getNameAsString().equals("Application")) {
+                List<BodyDeclaration<?>> fields = c.getMembers().stream().filter(n -> n.isFieldDeclaration()).collect(Collectors.toList());
+                this.custom_classes.put(c.getNameAsString(), fields);
+            }
+        }
 
         this.visit(cu, null);
     }
@@ -41,11 +54,8 @@ public class ASTParser extends ModifierVisitor<Void> {
     @Override
     public Visitable visit(ClassOrInterfaceDeclaration c, Void arg) {
         if (!c.getNameAsString().equals("Application")) {
-            List<BodyDeclaration<?>> fields = c.getMembers().stream().filter(n -> n.isFieldDeclaration()).collect(Collectors.toList());
-            this.custom_classes.put(c.getNameAsString(), fields);
-
             this.SecurityLevelsToClasses(c);
-            this.overrideMethods(c.getNameAsString(), c.getMethods(), true, this.lattice.getTop());
+            this.overrideMethods(c.getMethods(), true, this.lattice.getTop());
 
             MethodDeclaration addedMethod = c.addMethod("level");
             addedMethod.setModifiers(Modifier.Keyword.PUBLIC);
@@ -60,9 +70,67 @@ public class ASTParser extends ModifierVisitor<Void> {
 
     @Override
     public Visitable visit(LineComment c, Void arg) {
+        String regex = "declassification\\(([^,]+),([^,]+)\\)\\s*\\{";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(c.getContent());
+
         if (this.lattice.getMatrix().containsKey(c.getContent())) {
             this.variableDeclarationRewrite((VariableDeclarationExpr) c.getCommentedNode().get().getChildNodes().get(0), c.getContent());
+        } else if (matcher.matches()) {
+            String variable = matcher.group(1).trim();
+            String new_level = matcher.group(2).trim();
+
+            this.count_declassification = this.count_declassification + 1;
+            this.declassification_stack.push(variable);
+            this.declassification_variables.put(variable, variable + "_" + this.count_declassification);
+            String last_level = this.variable_level.get(variable);
+
+            String custom_class = "";
+            if (last_level.lastIndexOf("_") != -1) {
+                custom_class = last_level.substring(0, last_level.lastIndexOf("_"));
+            } else {
+                custom_class = last_level;
+            }
+
+            String new_custom_class = "";
+            if (new_level.equals(this.lattice.getTop())) {
+                new_custom_class = custom_class;
+            } else {
+                new_custom_class = custom_class + "_" + new_level;
+            }
+
+            VariableDeclarationExpr declaration = new VariableDeclarationExpr(new ClassOrInterfaceType(new_custom_class),
+                    variable + "_" + this.count_declassification);
+
+            String statement = "new " + new_custom_class + "(";
+            for (BodyDeclaration<?> field : this.custom_classes.get(custom_class)) {
+                statement = statement + "this." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
+            }
+            statement = statement.substring(0, statement.length() - 2);
+            statement = statement + ")";
+
+            declaration.getVariable(0).setInitializer(statement);
+            ExpressionStmt newStmt = new ExpressionStmt(declaration);
+
+            c.getCommentedNode().get().findAll(NameExpr.class).forEach(n -> {
+                if (n.getNameAsString().equals(variable)) {
+                    n.setName(variable + "_" + this.count_declassification);
+                }
+            });
+            c.getCommentedNode().get().findAncestor(BlockStmt.class).get().addStatement(0, newStmt);
+
+        } else if (c.getContent().equals("}")) {
+            String variable = this.declassification_stack.pop();
+            System.out.println(variable);
+            c.getCommentedNode().get().findAll(NameExpr.class).forEach(n -> {
+                if (n.getNameAsString().equals(this.declassification_variables.get(variable))) {
+                    n.setName(variable);
+                }
+            });
+            //this.declassification_stack.remove(variable);
+            //this.declassification_variables.remove(variable);
         }
+
         super.visit(c, arg);
         return c;
     }
@@ -71,6 +139,16 @@ public class ASTParser extends ModifierVisitor<Void> {
     public Visitable visit(AssignExpr a, Void arg) {
         if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals("Application")) {
             this.assignmentExprRewrite(a);
+        }
+        super.visit(a, arg);
+        return a;
+    }
+
+    public Visitable visit(NameExpr a, Void arg) {
+        if(a.findAncestor(ClassOrInterfaceDeclaration.class).isPresent()) {
+            if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals("Application")) {
+                changeNameExprDeclassification(a);
+            }
         }
         super.visit(a, arg);
         return a;
@@ -134,7 +212,7 @@ public class ASTParser extends ModifierVisitor<Void> {
                 newClass.setExtendedTypes(inheritance);
 
                 addMethods(newClass, node.getMethods());
-                this.overrideMethods(node.getNameAsString(), newClass.getMethods(), false, level);
+                this.overrideMethods(newClass.getMethods(), false, level);
 
                 cu.getTypes().addAfter(newClass, node);
             }
@@ -152,14 +230,14 @@ public class ASTParser extends ModifierVisitor<Void> {
     }
 
     private void addReturnStatement(NodeList<Statement> statements, MethodDeclaration method, Statement current_statement,
-                                    String class_level, String class_name, String level) {
+                                    String class_level, String level) {
 
         statements.add(new ExpressionStmt(new AssignExpr(new NameExpr(method.getTypeAsString() + " return_statement"),
                 current_statement.asReturnStmt().getExpression().get(), ASSIGN)));
 
         String expression = method.getTypeAsString() + "_" + combinationResult(level, class_level) + "(";
 
-        for (BodyDeclaration<?> field : this.custom_classes.get(class_name)) {
+        for (BodyDeclaration<?> field : this.custom_classes.get(method.getTypeAsString())) {
             expression = expression + "return_statement." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
         }
         expression = expression.substring(0, expression.length() - 2);
@@ -168,18 +246,17 @@ public class ASTParser extends ModifierVisitor<Void> {
         statements.add(new ReturnStmt(expression));
     }
 
-    private void changeIfStatement(MethodDeclaration method, IfStmt if_statement, String class_level,
-                                   String class_name, String level) {
+    private void changeIfStatement(MethodDeclaration method, IfStmt if_statement, String class_level, String level) {
 
         NodeList<Statement> statements = new NodeList<>();
 
         if (if_statement.hasThenBlock()) {
             for (Statement statement : if_statement.getThenStmt().asBlockStmt().getStatements()) {
                 if (statement.isReturnStmt()) {
-                    addReturnStatement(statements, method, statement, class_level, class_name, level);
+                    addReturnStatement(statements, method, statement, class_level, level);
                 } else {
                     if (statement.isIfStmt()) {
-                        changeIfStatement(method, statement.asIfStmt(), class_level, class_name, level);
+                        changeIfStatement(method, statement.asIfStmt(), class_level, level);
                     }
                     statements.add(statement);
                 }
@@ -192,10 +269,10 @@ public class ASTParser extends ModifierVisitor<Void> {
         if (if_statement.hasElseBlock()) {
             for (Statement statement : if_statement.getElseStmt().get().asBlockStmt().getStatements()) {
                 if (statement.isReturnStmt()) {
-                    addReturnStatement(statements, method, statement, class_level, class_name, level);
+                    addReturnStatement(statements, method, statement, class_level, level);
                 } else {
                     if (statement.isIfStmt()) {
-                        changeIfStatement(method, statement.asIfStmt(), class_level, class_name, level);
+                        changeIfStatement(method, statement.asIfStmt(), class_level, level);
                     }
                     statements.add(statement);
                 }
@@ -206,7 +283,7 @@ public class ASTParser extends ModifierVisitor<Void> {
         }
     }
 
-    private void addOverride(String class_level, String class_name, MethodDeclaration method) {
+    private void addOverride(String class_level, MethodDeclaration method) {
         BlockStmt body = method.getBody().get();
         SwitchStmt sw = new SwitchStmt();
         NodeList<SwitchEntry> entrys = new NodeList<>();
@@ -231,10 +308,10 @@ public class ASTParser extends ModifierVisitor<Void> {
             if (!level.equals(class_level)) {
                 for (Statement statement : newBody.getStatements()) {
                     if (statement.isReturnStmt()) {
-                        addReturnStatement(statements, method, statement, class_level, class_name, level);
+                        addReturnStatement(statements, method, statement, class_level, level);
                     } else {
                         if (statement.isIfStmt()) {
-                            changeIfStatement(method, statement.asIfStmt(), class_level, class_name, level);
+                            changeIfStatement(method, statement.asIfStmt(), class_level, level);
                         }
                         statements.add(statement);
                     }
@@ -248,17 +325,17 @@ public class ASTParser extends ModifierVisitor<Void> {
         method.setBody(new BlockStmt(new NodeList<Statement>(sw)));
     }
 
-    private void overrideMethods(String class_name, List<MethodDeclaration> methods, boolean top_class, String level) {
+    private void overrideMethods(List<MethodDeclaration> methods, boolean top_class, String level) {
         if (top_class == false) {
             for (MethodDeclaration method : methods) {
                 method.addAnnotation("Override");
                 if (!method.getNameAsString().equals("level") && !method.getType().isVoidType())
-                    addOverride(level, class_name, method);
+                    addOverride(level, method);
             }
         } else {
             for (MethodDeclaration method : methods) {
                 if (!method.getNameAsString().equals("level") && !method.getType().isVoidType())
-                    addOverride(level, class_name, method);
+                    addOverride(level, method);
             }
         }
     }
@@ -287,7 +364,13 @@ public class ASTParser extends ModifierVisitor<Void> {
 
     private void assignmentExprRewrite(AssignExpr expr) {
         if (expr.getTarget().isNameExpr() && !expr.getValue().isNameExpr()) {
-            expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(expr.getTarget().toString())), expr.getValue()));
+            expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(expr.getTarget().toString())), expr.getValue().clone()));
+        }
+    }
+
+    private void changeNameExprDeclassification(NameExpr name) {
+        if (this.declassification_stack.search(name.getNameAsString()) != -1) {
+            name.setName(this.declassification_variables.get(name.getNameAsString()));
         }
     }
 
