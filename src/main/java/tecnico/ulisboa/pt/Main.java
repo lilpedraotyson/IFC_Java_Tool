@@ -22,7 +22,7 @@ public class Main {
         lattice.addEdge("mid", "top");
 
         lattice.depht();*/
-        System.out.println(lattice);
+        //System.out.println(lattice);
 
         /*System.out.println(lattice.meet("bot", "top"));
         System.out.println(lattice.join("bot", "top"));*/

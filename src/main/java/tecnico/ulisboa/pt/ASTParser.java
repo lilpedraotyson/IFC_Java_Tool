@@ -228,7 +228,7 @@ public class ASTParser extends ModifierVisitor<Void> {
         } else {
             result = this.lattice.join(level1, level2);
         }
-        return result.equals(this.lattice.getTop()) ? "" : result;
+        return result;
     }
 
     private void addReturnStatement(NodeList<Statement> statements, MethodDeclaration method, Statement current_statement,
@@ -237,7 +237,9 @@ public class ASTParser extends ModifierVisitor<Void> {
         statements.add(new ExpressionStmt(new AssignExpr(new NameExpr(method.getTypeAsString() + " return_statement"),
                 current_statement.asReturnStmt().getExpression().get(), ASSIGN)));
 
-        String expression = "new " + method.getTypeAsString() + "_" + combinationResult(level, class_level) + "(";
+        String result = this.combinationResult(level, class_level);
+        String expression = result.equals(this.lattice.getTop()) ? "new " + method.getTypeAsString() + "("
+                : "new " + method.getTypeAsString() + "_" + result + "(";
 
         for (BodyDeclaration<?> field : this.custom_classes.get(method.getTypeAsString())) {
             expression = expression + "return_statement." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
@@ -253,32 +255,18 @@ public class ASTParser extends ModifierVisitor<Void> {
         NodeList<Statement> statements = new NodeList<>();
 
         if (if_statement.hasThenBlock()) {
-            for (Statement statement : if_statement.getThenStmt().asBlockStmt().getStatements()) {
-                if (statement.isReturnStmt()) {
-                    addReturnStatement(statements, method, statement, class_level, level);
-                } else {
-                    if (statement.isIfStmt()) {
-                        changeIfStatement(method, statement.asIfStmt(), class_level, level);
-                    }
-                    statements.add(statement);
-                }
-            }
+            this.compute_statements(statements, if_statement.getThenStmt().asBlockStmt(),
+                    method, class_level, level);
+
             BlockStmt newThenBlock = new BlockStmt();
             newThenBlock.copyStatements(statements);
             if_statement.setThenStmt(newThenBlock);
         }
 
         if (if_statement.hasElseBlock()) {
-            for (Statement statement : if_statement.getElseStmt().get().asBlockStmt().getStatements()) {
-                if (statement.isReturnStmt()) {
-                    addReturnStatement(statements, method, statement, class_level, level);
-                } else {
-                    if (statement.isIfStmt()) {
-                        changeIfStatement(method, statement.asIfStmt(), class_level, level);
-                    }
-                    statements.add(statement);
-                }
-            }
+            this.compute_statements(statements, if_statement.getElseStmt().get().asBlockStmt(),
+                    method, class_level, level);
+
             BlockStmt newElseBlock = new BlockStmt();
             newElseBlock.copyStatements(statements);
             if_statement.setElseStmt(newElseBlock);

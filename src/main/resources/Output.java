@@ -19,30 +19,30 @@ class Try {
                 if (x == b) {
                     if (x == c) {
                         Try1 return_statement = d.assd();
-                        return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 } else {
                     if (x == c) {
                         Try1 return_statement = d.assd();
-                        return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     if (x == 3) {
                         if (y < 50) {
                             Try1 return_statement = h;
-                            return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                            return new Try1(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                         }
                         Try1 return_statement = z;
-                        return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = b;
-                    return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 }
                 Try1 return_statement = x;
-                return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                return new Try1(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
             case 0:
                 x = z;
                 z = c;
