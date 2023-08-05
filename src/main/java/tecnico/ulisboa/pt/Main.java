@@ -7,10 +7,11 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
         File output = new File("src/main/resources/Output.java");
-        FileWriter myWriter = new FileWriter(output);
-        Lattice lattice = new Lattice();
+        File input_lattice = new File("src/main/resources/lattice.txt");
 
-        lattice.addVertex("top");
+        Lattice lattice = new Lattice(input_lattice);
+
+        /*lattice.addVertex("top");
         lattice.addVertex("mid");
         lattice.addVertex("bot");
 
@@ -20,14 +21,15 @@ public class Main {
         lattice.addEdge("bot", "mid");
         lattice.addEdge("mid", "top");
 
-        lattice.depht();
-        /*System.out.println(lattice);
+        lattice.depht();*/
+        System.out.println(lattice);
 
-        System.out.println(lattice.meet("bot", "top"));
+        /*System.out.println(lattice.meet("bot", "top"));
         System.out.println(lattice.join("bot", "top"));*/
         ASTParser ast = new ASTParser(lattice, "Application.java", "meet");
 
         //System.out.print(ast);
+        FileWriter myWriter = new FileWriter(output);
         myWriter.write(ast.toString());
         myWriter.close();
         //ast.SecurityLevelsToClasses();

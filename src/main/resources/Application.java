@@ -13,7 +13,7 @@ class Try {
         z = c;
         if (x == b) {
             if (x == c) {
-                return d;
+                return d.assd();
             }
             return a;
         } else {
@@ -67,13 +67,14 @@ public class Application {
         //mid
         Try z = m + "sad" + d + m.test(a, c, d) + 1 + true;
 
-        //declassification(x, mid) {
+        //declassification(y, mid) {
         x = m.test1(y) + y;
 
         x = y + m;
 
         x = y + 1;
 
+        //}
         y = 1;
 
         //declassification(y, top) {
@@ -81,7 +82,6 @@ public class Application {
         y = true;
         x = 32;
         if(x < y && z == 1) {
-            //}
             x = y;
             //}
             y = 1;

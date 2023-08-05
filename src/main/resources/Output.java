@@ -13,66 +13,96 @@ class Try {
 
     public Try1 test1(Try x) {
         switch(Math.min(this.level(), x.level())) {
+            default:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        Try1 return_statement = d.assd();
+                        return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = a;
+                    return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                } else {
+                    if (x == c) {
+                        Try1 return_statement = d.assd();
+                        return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = a;
+                    return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    if (x == 3) {
+                        if (y < 50) {
+                            Try1 return_statement = h;
+                            return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        }
+                        Try1 return_statement = z;
+                        return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = b;
+                    return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                }
+                Try1 return_statement = x;
+                return new Try1_(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
             case 0:
                 x = z;
                 z = c;
                 if (x == b) {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 } else {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     if (x == 3) {
                         if (y < 50) {
                             Try1 return_statement = h;
-                            return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                            return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                         }
                         Try1 return_statement = z;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = b;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 }
                 Try1 return_statement = x;
-                return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
             case 1:
                 x = z;
                 z = c;
                 if (x == b) {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 } else {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     if (x == 3) {
                         if (y < 50) {
                             Try1 return_statement = h;
-                            return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                            return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                         }
                         Try1 return_statement = z;
-                        return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = b;
-                    return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 }
                 Try1 return_statement = x;
-                return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
         }
     }
 
@@ -106,61 +136,91 @@ class Try_mid extends Try {
                 z = c;
                 if (x == b) {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 } else {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     if (x == 3) {
                         if (y < 50) {
                             Try1 return_statement = h;
-                            return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                            return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                         }
                         Try1 return_statement = z;
-                        return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = b;
-                    return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 }
                 Try1 return_statement = x;
-                return Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
             case 0:
                 x = z;
                 z = c;
                 if (x == b) {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 } else {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     if (x == 3) {
                         if (y < 50) {
                             Try1 return_statement = h;
-                            return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                            return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                         }
                         Try1 return_statement = z;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = b;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 }
                 Try1 return_statement = x;
-                return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+            default:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        Try1 return_statement = d.assd();
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = a;
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                } else {
+                    if (x == c) {
+                        Try1 return_statement = d.assd();
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = a;
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    if (x == 3) {
+                        if (y < 50) {
+                            Try1 return_statement = h;
+                            return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        }
+                        Try1 return_statement = z;
+                        return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = b;
+                    return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                }
+                Try1 return_statement = x;
+                return new Try1_mid(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
         }
     }
 }
@@ -190,61 +250,91 @@ class Try_bot extends Try_mid {
                 z = c;
                 if (x == b) {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 } else {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     if (x == 3) {
                         if (y < 50) {
                             Try1 return_statement = h;
-                            return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                            return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                         }
                         Try1 return_statement = z;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = b;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 }
                 Try1 return_statement = x;
-                return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+            default:
+                x = z;
+                z = c;
+                if (x == b) {
+                    if (x == c) {
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = a;
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                } else {
+                    if (x == c) {
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = a;
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    if (x == 3) {
+                        if (y < 50) {
+                            Try1 return_statement = h;
+                            return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        }
+                        Try1 return_statement = z;
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    }
+                    Try1 return_statement = b;
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                }
+                Try1 return_statement = x;
+                return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
             case 1:
                 x = z;
                 z = c;
                 if (x == b) {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 } else {
                     if (x == c) {
-                        Try1 return_statement = d;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        Try1 return_statement = d.assd();
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = a;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     if (x == 3) {
                         if (y < 50) {
                             Try1 return_statement = h;
-                            return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                            return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                         }
                         Try1 return_statement = z;
-                        return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                        return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                     }
                     Try1 return_statement = b;
-                    return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                    return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
                 }
                 Try1 return_statement = x;
-                return Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
+                return new Try1_bot(return_statement.t1, return_statement.t2, return_statement.t3, return_statement.t4);
         }
     }
 }
@@ -321,7 +411,7 @@ public class Application {
 
     public static void main(String[] args) {
         Try y_2 = new Try(this.t);
-        Try_mid x_1 = new Try_mid(this.t);
+        Try_mid y_1 = new Try_mid(this.t);
         //top
         Try x = new Try("Top", 1, "afdasfa");
         //mid
@@ -331,23 +421,23 @@ public class Application {
         this.y = x;
         //mid
         Try_mid z = (Try_mid) m + "sad" + d + m.test(a, c, d) + 1 + true;
-        //declassification(x, mid) {
-        x_1 = (Try) m.test1(y) + y;
-        x_1 = (Try) y + m;
-        x_1 = (Try) y + 1;
+        //declassification(y, mid) {
+        x = (Try) m.test1(y_1) + y_1;
+        x = (Try) y_1 + m;
+        x = (Try) y_1 + 1;
+        //}
         y = (Try_bot) 1;
         //declassification(y, top) {
         y_2 = (Try_bot) y_2 + y_2;
         y_2 = (Try_bot) true;
-        x_1 = (Try) 32;
-        if (x_1 < y_2 && z == 1) {
-            //}
-            x_1 = y;
+        x = (Try) 32;
+        if (x < y_2 && z == 1) {
+            x = y_2;
             //}
             y = (Try_bot) 1;
             m = (Try_mid) a + m.test(y);
         } else {
-            if (x_1) {
+            if (x) {
                 m = z;
             } else {
                 z = (Try_mid) m.test(y_2);

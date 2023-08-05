@@ -1,5 +1,7 @@
 package tecnico.ulisboa.pt;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -9,11 +11,28 @@ public class Lattice {
     private String bot;
     private Map<String, Integer> level_depht = new HashMap<>();
 
+    public Lattice(File input) throws FileNotFoundException {
+        Scanner myReader = new Scanner(input);
+        int count = 0;
+        while (myReader.hasNextLine()) {
+            String data = myReader.nextLine();
+            String levels[] = data.split(" ");
+            if (count == 0) {
+                this.setTop(levels[0]);
+                this.setBot(levels[1]);
+                count++;
+            } else
+                this.addEdge(levels[0], levels[1]);
+        }
+        this.depht();
+    }
     public void setTop(String level) {
+        this.addVertex(level);
         this.top = level;
     }
 
     public void setBot(String level) {
+        this.addVertex(level);
         this.bot = level;
     }
 
@@ -28,7 +47,8 @@ public class Lattice {
     public Map<String, Integer> getLevelDepht() {return this.level_depht;}
 
     public void addVertex(String level) {
-        this.matrix.put(level, "");
+        if (!this.matrix.containsKey(level))
+            this.matrix.put(level, "");
     }
 
     public int levelCount() {
@@ -36,11 +56,8 @@ public class Lattice {
     }
 
     public void addEdge(String source, String destination) {
-        if (!this.matrix.containsKey(source))
-            addVertex(source);
-
-        if (!this.matrix.containsKey(destination))
-            addVertex(destination);
+        addVertex(source);
+        addVertex(destination);
 
         this.matrix.replace(source, destination);
     }

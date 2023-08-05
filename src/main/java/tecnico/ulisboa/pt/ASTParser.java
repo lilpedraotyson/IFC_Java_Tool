@@ -80,8 +80,13 @@ public class ASTParser extends ModifierVisitor<Void> {
             String variable = matcher.group(1).trim();
             String new_level = matcher.group(2).trim();
 
-            this.count_declassification = this.count_declassification + 1;
             this.declassification_stack.push(variable);
+            this.count_declassification = this.count_declassification + 1;
+
+            if (this.declassification_variables.keySet().contains(variable)) {
+                this.declassification_variables.remove(variable);
+            }
+
             this.declassification_variables.put(variable, variable + "_" + this.count_declassification);
             String last_level = this.variable_level.get(variable);
 
@@ -126,8 +131,6 @@ public class ASTParser extends ModifierVisitor<Void> {
                     n.setName(variable);
                 }
             });
-            //this.declassification_stack.remove(variable);
-            //this.declassification_variables.remove(variable);
         }
 
         super.visit(c, arg);
@@ -234,7 +237,7 @@ public class ASTParser extends ModifierVisitor<Void> {
         statements.add(new ExpressionStmt(new AssignExpr(new NameExpr(method.getTypeAsString() + " return_statement"),
                 current_statement.asReturnStmt().getExpression().get(), ASSIGN)));
 
-        String expression = method.getTypeAsString() + "_" + combinationResult(level, class_level) + "(";
+        String expression = "new " + method.getTypeAsString() + "_" + combinationResult(level, class_level) + "(";
 
         for (BodyDeclaration<?> field : this.custom_classes.get(method.getTypeAsString())) {
             expression = expression + "return_statement." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
@@ -282,6 +285,19 @@ public class ASTParser extends ModifierVisitor<Void> {
         }
     }
 
+    public void compute_statements(NodeList<Statement> statements, BlockStmt body, MethodDeclaration method, String class_level, String level) {
+        for (Statement statement : body.getStatements()) {
+            if (statement.isReturnStmt()) {
+                addReturnStatement(statements, method, statement, class_level, level);
+            } else {
+                if (statement.isIfStmt()) {
+                    changeIfStatement(method, statement.asIfStmt(), class_level, level);
+                }
+                statements.add(statement);
+            }
+        }
+    }
+
     private void addOverride(String class_level, MethodDeclaration method) {
         BlockStmt body = method.getBody().get();
         SwitchStmt sw = new SwitchStmt();
@@ -305,21 +321,15 @@ public class ASTParser extends ModifierVisitor<Void> {
             newBody.copyStatements(body);
 
             if (!level.equals(class_level)) {
-                for (Statement statement : newBody.getStatements()) {
-                    if (statement.isReturnStmt()) {
-                        addReturnStatement(statements, method, statement, class_level, level);
-                    } else {
-                        if (statement.isIfStmt()) {
-                            changeIfStatement(method, statement.asIfStmt(), class_level, level);
-                        }
-                        statements.add(statement);
-                    }
-                }
+                this.compute_statements(statements, newBody,  method, class_level, level);
                 entrys.add(new SwitchEntry(new NodeList<>(new IntegerLiteralExpr(this.lattice.getLevelDepht().get(level)))
                                           , SwitchEntry.Type.STATEMENT_GROUP , statements));
             }
+            else {
+                this.compute_statements(statements, newBody,  method, class_level, level);
+                entrys.add(new SwitchEntry(new NodeList<>(), SwitchEntry.Type.STATEMENT_GROUP , statements));
+            }
         }
-
         sw.setEntries(entrys);
         method.setBody(new BlockStmt(new NodeList<Statement>(sw)));
     }
