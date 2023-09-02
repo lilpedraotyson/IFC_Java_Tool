@@ -11,6 +11,8 @@ public class Lattice {
     private String bot;
     private Map<String, Integer> level_depht = new HashMap<>();
 
+    private String combination = "";
+
     public Lattice(File input) throws FileNotFoundException {
         Scanner myReader = new Scanner(input);
         int count = 0;
@@ -18,11 +20,13 @@ public class Lattice {
             String data = myReader.nextLine();
             String levels[] = data.split(" ");
             if (count == 0) {
+                this.combination = data;
+            } else if (count == 1) {
                 this.setTop(levels[0]);
                 this.setBot(levels[1]);
-                count++;
             } else
                 this.addEdge(levels[0], levels[1]);
+            count++;
         }
         this.depht();
     }
@@ -37,6 +41,8 @@ public class Lattice {
     }
 
     public String getTop() {return this.top;}
+
+    public String getCombinationClasses() {return this.combination;}
 
     public String getBot() {
         return this.bot;

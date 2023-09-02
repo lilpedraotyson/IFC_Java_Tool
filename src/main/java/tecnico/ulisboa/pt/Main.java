@@ -7,7 +7,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
         File output = new File("src/main/resources/Output.java");
-        File input_lattice = new File("src/main/resources/lattice.txt");
+        File input_lattice = new File("src/main/resources/DissertationLattice.txt");
 
         Lattice lattice = new Lattice(input_lattice);
 
@@ -26,7 +26,7 @@ public class Main {
 
         /*System.out.println(lattice.meet("bot", "top"));
         System.out.println(lattice.join("bot", "top"));*/
-        ASTParser ast = new ASTParser(lattice, "Application.java", "meet");
+        ASTParser ast = new ASTParser(lattice, "DissertationProgram.java", lattice.getCombinationClasses());
 
         //System.out.print(ast);
         FileWriter myWriter = new FileWriter(output);

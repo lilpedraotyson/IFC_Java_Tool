@@ -30,6 +30,7 @@ public class ASTParser extends ModifierVisitor<Void> {
     private HashMap<String, String> declassification_variables = new HashMap<>();
     private Stack<String> declassification_stack = new Stack<>();
     private Integer count_declassification;
+    private Integer count_return_statement = 0;
 
 
     public ASTParser(Lattice l, String filename, String combination) {
@@ -109,7 +110,7 @@ public class ASTParser extends ModifierVisitor<Void> {
 
             String statement = "new " + new_custom_class + "(";
             for (BodyDeclaration<?> field : this.custom_classes.get(custom_class)) {
-                statement = statement + "this." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
+                statement = statement + variable + "." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
             }
             statement = statement.substring(0, statement.length() - 2);
             statement = statement + ")";
@@ -122,7 +123,18 @@ public class ASTParser extends ModifierVisitor<Void> {
                     n.setName(variable + "_" + this.count_declassification);
                 }
             });
-            c.getCommentedNode().get().findAncestor(BlockStmt.class).get().addStatement(0, newStmt);
+
+            BlockStmt block = c.getCommentedNode().get().findAncestor(BlockStmt.class).get();
+            int count = 0;
+            BlockStmt newBlock = new BlockStmt();
+            newBlock.copyStatements(block);
+
+            for (Statement st : newBlock.getStatements()) {
+                if (st.equals(c.getCommentedNode().get())) {
+                    block.addStatement(count, newStmt);
+                }
+                count = count + 1;
+            }
 
         } else if (c.getContent().equals("}")) {
             String variable = this.declassification_stack.pop();
@@ -187,7 +199,7 @@ public class ASTParser extends ModifierVisitor<Void> {
                 for (BodyDeclaration<?> field : this.custom_classes.get(node.getNameAsString())) {
                     arguments.add(new Parameter(new TypeParameter(field.toFieldDeclaration().get().getCommonType().toString()),
                             field.toFieldDeclaration().get().getVariables().get(0).toString()));
-                    statement = statement + "this." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
+                    statement = statement  + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
                 }
 
                 newConstructor.setParameters(arguments);
@@ -234,7 +246,7 @@ public class ASTParser extends ModifierVisitor<Void> {
     private void addReturnStatement(NodeList<Statement> statements, MethodDeclaration method, Statement current_statement,
                                     String class_level, String level) {
 
-        statements.add(new ExpressionStmt(new AssignExpr(new NameExpr(method.getTypeAsString() + " return_statement"),
+        statements.add(new ExpressionStmt(new AssignExpr(new NameExpr(method.getTypeAsString() + " return_statement" + this.count_return_statement),
                 current_statement.asReturnStmt().getExpression().get(), ASSIGN)));
 
         String result = this.combinationResult(level, class_level);
@@ -242,8 +254,9 @@ public class ASTParser extends ModifierVisitor<Void> {
                 : "new " + method.getTypeAsString() + "_" + result + "(";
 
         for (BodyDeclaration<?> field : this.custom_classes.get(method.getTypeAsString())) {
-            expression = expression + "return_statement." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
+            expression = expression + "return_statement" + this.count_return_statement + "." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
         }
+        this.count_return_statement = this.count_return_statement + 1;
         expression = expression.substring(0, expression.length() - 2);
         expression = expression + ")";
 
@@ -286,6 +299,20 @@ public class ASTParser extends ModifierVisitor<Void> {
         }
     }
 
+    private void createMathExpression(NodeList<Expression> arguments, MethodCallExpr mathExpr, int index, String min_max) {
+        MethodCallExpr newExpr;
+        if (index + 1 < arguments.size()) {
+            newExpr = new MethodCallExpr();
+            newExpr.setScope(new NameExpr("Math"));
+            newExpr.setName(min_max);
+            newExpr.addArgument(new NameExpr(arguments.get(index).toString()));
+            mathExpr.addArgument(newExpr);
+            createMathExpression(arguments, newExpr, index + 1, min_max);
+        } else {
+            mathExpr.addArgument(new NameExpr(arguments.get(index).toString()));
+        }
+    }
+
     private void addOverride(String class_level, MethodDeclaration method) {
         BlockStmt body = method.getBody().get();
         SwitchStmt sw = new SwitchStmt();
@@ -297,11 +324,19 @@ public class ASTParser extends ModifierVisitor<Void> {
             s_selector_arguments.add(new NameExpr(par.getNameAsString() + ".level()"));
         }
 
+        MethodCallExpr mathExpr = new MethodCallExpr();
+        mathExpr.setScope(new NameExpr("Math"));
         if (this.combination.equals("meet")) {
-            sw.setSelector(new MethodCallExpr(new NameExpr("Math"), "min", s_selector_arguments));
+            mathExpr.setName("min");
+            mathExpr.addArgument(new NameExpr(s_selector_arguments.get(0).toString()));
+            createMathExpression(s_selector_arguments, mathExpr, 1, "min");
         } else if (this.combination.equals("join")) {
-            sw.setSelector(new MethodCallExpr(new NameExpr("Math"), "max", s_selector_arguments));
+            mathExpr.setName("max");
+            mathExpr.addArgument(new NameExpr(s_selector_arguments.get(0).toString()));
+            createMathExpression(s_selector_arguments, mathExpr, 1, "max");
+            sw.setSelector(mathExpr);
         }
+        sw.setSelector(mathExpr);
 
         for (String level : this.lattice.getMatrix().keySet()) {
             NodeList<Statement> statements = new NodeList<>();
