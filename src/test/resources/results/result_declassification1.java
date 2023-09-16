@@ -11,29 +11,29 @@ class Test {
 
     public Test method2(Test x) {
         switch(Math.max(this.level(), x.level())) {
-            case 2:
-                Test return_statement12 = x;
-                return new Test(return_statement12.t);
             case 0:
-                Test return_statement13 = x;
-                return new Test_bot(return_statement13.t);
+                Test return_statement12 = x;
+                return new Test_bot(return_statement12.t);
             case 1:
+                Test return_statement13 = x;
+                return new Test_mid(return_statement13.t);
+            default:
                 Test return_statement14 = x;
-                return new Test_mid(return_statement14.t);
+                return new Test(return_statement14.t);
         }
     }
 
     public Test method3(Test x, Test y) {
         switch(Math.max(this.level(), Math.max(x.level(), y.level()))) {
-            case 2:
-                Test return_statement15 = x;
-                return new Test(return_statement15.t);
             case 0:
-                Test return_statement16 = x;
-                return new Test_bot(return_statement16.t);
+                Test return_statement15 = x;
+                return new Test_bot(return_statement15.t);
             case 1:
+                Test return_statement16 = x;
+                return new Test_mid(return_statement16.t);
+            default:
                 Test return_statement17 = x;
-                return new Test_mid(return_statement17.t);
+                return new Test(return_statement17.t);
         }
     }
 
@@ -66,7 +66,7 @@ class Test_mid extends Test {
             case 0:
                 Test return_statement7 = x;
                 return new Test_bot(return_statement7.t);
-            case 1:
+            default:
                 Test return_statement8 = x;
                 return new Test_mid(return_statement8.t);
         }
@@ -81,7 +81,7 @@ class Test_mid extends Test {
             case 0:
                 Test return_statement10 = x;
                 return new Test_bot(return_statement10.t);
-            case 1:
+            default:
                 Test return_statement11 = x;
                 return new Test_mid(return_statement11.t);
         }
@@ -109,12 +109,12 @@ class Test_bot extends Test_mid {
             case 2:
                 Test return_statement0 = x;
                 return new Test(return_statement0.t);
-            case 0:
-                Test return_statement1 = x;
-                return new Test_bot(return_statement1.t);
             case 1:
+                Test return_statement1 = x;
+                return new Test_mid(return_statement1.t);
+            default:
                 Test return_statement2 = x;
-                return new Test_mid(return_statement2.t);
+                return new Test_bot(return_statement2.t);
         }
     }
 
@@ -124,12 +124,12 @@ class Test_bot extends Test_mid {
             case 2:
                 Test return_statement3 = x;
                 return new Test(return_statement3.t);
-            case 0:
-                Test return_statement4 = x;
-                return new Test_bot(return_statement4.t);
             case 1:
+                Test return_statement4 = x;
+                return new Test_mid(return_statement4.t);
+            default:
                 Test return_statement5 = x;
-                return new Test_mid(return_statement5.t);
+                return new Test_bot(return_statement5.t);
         }
     }
 }
@@ -155,9 +155,9 @@ public class Application {
         Test_mid x_2 = new Test_mid(x.t);
         //declassification(x, mid) {
         x_2 = m;
-        Test_high m_3 = new Test_high(m.t);
-        //declassification(m, high) {
-        x_2 = (Test) m_3.method3(m_3, b);
+        Test m_3 = new Test(m.t);
+        //declassification(m, top) {
+        x_2 = (Test_mid) m_3.method3(m_3, b);
         //}
         b = (Test_bot) x_2.method2(m);
         //}
@@ -165,7 +165,7 @@ public class Application {
         m = x_1;
         x_1 = m;
         //}
-        x = (Test) m.method3(m, b);
+        x = (Test_bot) m.method3(m, b);
         b = (Test_bot) x.method2(m);
     }
 }

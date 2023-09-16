@@ -35,7 +35,7 @@ public class Application {
         m = x;
         //declassification(x, mid) {
         x = m;
-        //declassification(m, high) {
+        //declassification(m, top) {
         x = m.method3(m, b);
         //}
         b = x.method2(m);

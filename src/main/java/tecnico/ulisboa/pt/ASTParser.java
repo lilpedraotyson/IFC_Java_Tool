@@ -91,8 +91,10 @@ public class ASTParser extends ModifierVisitor<Void> {
             String custom_class = "";
             if (last_level.lastIndexOf("_") != -1) {
                 custom_class = last_level.substring(0, last_level.lastIndexOf("_"));
+                this.variable_level.put(variable + "_" + this.count_declassification, last_level.substring(0, last_level.lastIndexOf("_")) + "_" + new_level);
             } else {
                 custom_class = last_level;
+                this.variable_level.put(variable + "_" + this.count_declassification, last_level + "_" + new_level);
             }
 
             String new_custom_class = "";
@@ -101,7 +103,6 @@ public class ASTParser extends ModifierVisitor<Void> {
             } else {
                 new_custom_class = custom_class + "_" + new_level;
             }
-
 
             VariableDeclarationExpr declaration = new VariableDeclarationExpr(new ClassOrInterfaceType(new_custom_class),
                     variable + "_" + this.count_declassification);
@@ -352,10 +353,18 @@ public class ASTParser extends ModifierVisitor<Void> {
             BlockStmt newBody = new BlockStmt();
             newBody.copyStatements(body);
 
-            this.compute_statements(statements, newBody,  method, class_level, level);
-            entrys.add(new SwitchEntry(new NodeList<>(new IntegerLiteralExpr(this.lattice.getLevelDepht().get(level)))
-                                      , SwitchEntry.Type.STATEMENT_GROUP , statements));
+            if (!level.equals(class_level)) {
+                this.compute_statements(statements, newBody, method, class_level, level);
+                entrys.add(new SwitchEntry(new NodeList<>(new IntegerLiteralExpr(this.lattice.getLevelDepht().get(level)))
+                        , SwitchEntry.Type.STATEMENT_GROUP, statements));
+            }
         }
+        NodeList<Statement> statements = new NodeList<>();
+        BlockStmt newBody = new BlockStmt();
+        newBody.copyStatements(body);
+        this.compute_statements(statements, newBody,  method, class_level, class_level);
+        entrys.add(new SwitchEntry(new NodeList<>(), SwitchEntry.Type.STATEMENT_GROUP , statements));
+
         sw.setEntries(entrys);
         method.setBody(new BlockStmt(new NodeList<Statement>(sw)));
     }
@@ -398,8 +407,18 @@ public class ASTParser extends ModifierVisitor<Void> {
     }
 
     private void assignmentExprRewrite(AssignExpr expr) {
+        int flag = 0;
         if (expr.getTarget().isNameExpr() && !expr.getValue().isNameExpr()) {
-            expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(expr.getTarget().toString())), expr.getValue().clone()));
+            for (int i = this.count_declassification; i > 0; i--) {
+                if (this.declassification_stack.search(expr.getTarget().toString() + "_" + i) != -1) {
+                    expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(expr.getTarget().toString() + "_" + i)), expr.getValue().clone()));
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag == 0) {
+                expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(expr.getTarget().toString())), expr.getValue().clone()));
+            }
         }
     }
 

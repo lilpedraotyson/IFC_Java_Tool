@@ -11,23 +11,23 @@ class Test {
 
     public Test method2(Test x) {
         switch(Math.min(this.level(), x.level())) {
-            case 1:
-                Test return_statement4 = x;
-                return new Test(return_statement4.t);
             case 0:
+                Test return_statement4 = x;
+                return new Test_low(return_statement4.t);
+            default:
                 Test return_statement5 = x;
-                return new Test_low(return_statement5.t);
+                return new Test(return_statement5.t);
         }
     }
 
     public Test method3(Test x, Test y) {
         switch(Math.min(this.level(), Math.min(x.level(), y.level()))) {
-            case 1:
-                Test return_statement6 = x;
-                return new Test(return_statement6.t);
             case 0:
+                Test return_statement6 = x;
+                return new Test_low(return_statement6.t);
+            default:
                 Test return_statement7 = x;
-                return new Test_low(return_statement7.t);
+                return new Test(return_statement7.t);
         }
     }
 
@@ -57,7 +57,7 @@ class Test_low extends Test {
             case 1:
                 Test return_statement0 = x;
                 return new Test(return_statement0.t);
-            case 0:
+            default:
                 Test return_statement1 = x;
                 return new Test_low(return_statement1.t);
         }
@@ -69,7 +69,7 @@ class Test_low extends Test {
             case 1:
                 Test return_statement2 = x;
                 return new Test(return_statement2.t);
-            case 0:
+            default:
                 Test return_statement3 = x;
                 return new Test_low(return_statement3.t);
         }
