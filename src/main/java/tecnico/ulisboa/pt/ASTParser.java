@@ -37,9 +37,10 @@ public class ASTParser extends ModifierVisitor<Void> {
         this.lattice = l;
         this.combination = combination;
         this.count_declassification = 0;
+        String[] file_name_source = filename.split("/", 2);
 
-        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(Main.class).resolve("src/main/resources"));
-        this.cu = sourceRoot.parse("", filename);
+        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(Main.class).resolve(file_name_source[0]));
+        this.cu = sourceRoot.parse("", file_name_source[1]);
 
         List<ClassOrInterfaceDeclaration> classes = cu.findAll(ClassOrInterfaceDeclaration.class).stream().collect(Collectors.toList());
         for (ClassOrInterfaceDeclaration c : classes) {
@@ -81,14 +82,10 @@ public class ASTParser extends ModifierVisitor<Void> {
             String variable = matcher.group(1).trim();
             String new_level = matcher.group(2).trim();
 
-            this.declassification_stack.push(variable);
             this.count_declassification = this.count_declassification + 1;
+            this.declassification_variables.put(variable + "_" + this.count_declassification, variable);
+            this.declassification_stack.push(variable + "_" + this.count_declassification);
 
-            if (this.declassification_variables.keySet().contains(variable)) {
-                this.declassification_variables.remove(variable);
-            }
-
-            this.declassification_variables.put(variable, variable + "_" + this.count_declassification);
             String last_level = this.variable_level.get(variable);
 
             String custom_class = "";
@@ -105,6 +102,7 @@ public class ASTParser extends ModifierVisitor<Void> {
                 new_custom_class = custom_class + "_" + new_level;
             }
 
+
             VariableDeclarationExpr declaration = new VariableDeclarationExpr(new ClassOrInterfaceType(new_custom_class),
                     variable + "_" + this.count_declassification);
 
@@ -119,7 +117,7 @@ public class ASTParser extends ModifierVisitor<Void> {
             ExpressionStmt newStmt = new ExpressionStmt(declaration);
 
             c.getCommentedNode().get().findAll(NameExpr.class).forEach(n -> {
-                if (n.getNameAsString().equals(variable)) {
+                if (n.getNameAsString().contains(variable)) {
                     n.setName(variable + "_" + this.count_declassification);
                 }
             });
@@ -137,10 +135,22 @@ public class ASTParser extends ModifierVisitor<Void> {
             }
 
         } else if (c.getContent().equals("}")) {
-            String variable = this.declassification_stack.pop();
+            String declassification_variable = this.declassification_stack.pop();
+            String variable = this.declassification_variables.get(declassification_variable);
             c.getCommentedNode().get().findAll(NameExpr.class).forEach(n -> {
-                if (n.getNameAsString().equals(this.declassification_variables.get(variable))) {
-                    n.setName(variable);
+                int flag = 0;
+                if (n.getNameAsString().equals(declassification_variable)) {
+                    for (int i = this.count_declassification; i > 0; i--) {
+                        if (this.declassification_stack.search(variable + "_" + i) != -1) {
+                            n.setName(variable + "_" + i);
+                            flag = 1;
+                            break;
+                        }
+                    }
+                    if (flag == 0) {
+                        n.setName(variable);
+                    }
+                    this.declassification_variables.remove(declassification_variable);
                 }
             });
         }
@@ -249,9 +259,8 @@ public class ASTParser extends ModifierVisitor<Void> {
         statements.add(new ExpressionStmt(new AssignExpr(new NameExpr(method.getTypeAsString() + " return_statement" + this.count_return_statement),
                 current_statement.asReturnStmt().getExpression().get(), ASSIGN)));
 
-        String result = this.combinationResult(level, class_level);
-        String expression = result.equals(this.lattice.getTop()) ? "new " + method.getTypeAsString() + "("
-                : "new " + method.getTypeAsString() + "_" + result + "(";
+        String expression = level.equals(this.lattice.getTop()) ? "new " + method.getTypeAsString() + "("
+                : "new " + method.getTypeAsString() + "_" + level + "(";
 
         for (BodyDeclaration<?> field : this.custom_classes.get(method.getTypeAsString())) {
             expression = expression + "return_statement" + this.count_return_statement + "." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
@@ -343,15 +352,9 @@ public class ASTParser extends ModifierVisitor<Void> {
             BlockStmt newBody = new BlockStmt();
             newBody.copyStatements(body);
 
-            if (!level.equals(class_level)) {
-                this.compute_statements(statements, newBody,  method, class_level, level);
-                entrys.add(new SwitchEntry(new NodeList<>(new IntegerLiteralExpr(this.lattice.getLevelDepht().get(level)))
-                                          , SwitchEntry.Type.STATEMENT_GROUP , statements));
-            }
-            else {
-                this.compute_statements(statements, newBody,  method, class_level, level);
-                entrys.add(new SwitchEntry(new NodeList<>(), SwitchEntry.Type.STATEMENT_GROUP , statements));
-            }
+            this.compute_statements(statements, newBody,  method, class_level, level);
+            entrys.add(new SwitchEntry(new NodeList<>(new IntegerLiteralExpr(this.lattice.getLevelDepht().get(level)))
+                                      , SwitchEntry.Type.STATEMENT_GROUP , statements));
         }
         sw.setEntries(entrys);
         method.setBody(new BlockStmt(new NodeList<Statement>(sw)));
@@ -401,8 +404,11 @@ public class ASTParser extends ModifierVisitor<Void> {
     }
 
     private void changeNameExprDeclassification(NameExpr name) {
-        if (this.declassification_stack.search(name.getNameAsString()) != -1) {
-            name.setName(this.declassification_variables.get(name.getNameAsString()));
+        for (int i = this.count_declassification; i > 0; i--) {
+            if (this.declassification_stack.search(name.getNameAsString() + "_" + i) != -1) {
+                name.setName(name.getNameAsString() + "_" + i);
+                break;
+            }
         }
     }
 
