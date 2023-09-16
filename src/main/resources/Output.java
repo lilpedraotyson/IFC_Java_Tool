@@ -11,12 +11,12 @@ class Test {
 
     public Test method2(Test x, Test y) {
         switch(Math.max(this.level(), Math.max(x.level(), y.level()))) {
-            case 1:
-                Test return_statement2 = x;
-                return new Test(return_statement2.t);
             case 0:
+                Test return_statement2 = x;
+                return new Test_Low(return_statement2.t);
+            default:
                 Test return_statement3 = x;
-                return new Test_Low(return_statement3.t);
+                return new Test(return_statement3.t);
         }
     }
 
@@ -46,7 +46,7 @@ class Test_Low extends Test {
             case 1:
                 Test return_statement0 = x;
                 return new Test(return_statement0.t);
-            case 0:
+            default:
                 Test return_statement1 = x;
                 return new Test_Low(return_statement1.t);
         }
@@ -69,7 +69,7 @@ public class Application {
         x = y_1;
         y_1 = x;
         y_1.method1(y_1);
-        y_1 = (Test_Low) x.method2(y_1, x);
+        y_1 = (Test_High) x.method2(y_1, x);
         //}
         x = y;
         y = x;
