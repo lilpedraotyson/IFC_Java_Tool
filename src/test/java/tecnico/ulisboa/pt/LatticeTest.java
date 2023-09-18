@@ -41,9 +41,9 @@ public class LatticeTest {
     @Test
     public void test3() throws IOException {
         Lattice lattice = new Lattice(new File("target/test-classes/tests/lattice.txt"));
-        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/ClassTest.java", lattice.getCombinationClasses());
-        ASTParser ast1 = new ASTParser(lattice, "target/test-classes/tests/ClassTest1.java", lattice.getCombinationClasses());
-        ASTParser ast2 = new ASTParser(lattice, "target/test-classes/tests/ClassTest2.java", lattice.getCombinationClasses());
+        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/ClassTest.java");
+        ASTParser ast1 = new ASTParser(lattice, "target/test-classes/tests/ClassTest1.java");
+        ASTParser ast2 = new ASTParser(lattice, "target/test-classes/tests/ClassTest2.java");
 
         String fileContent = new String(Files.readAllBytes(Paths.get("target/test-classes/results/resultClass.java")));
         String fileContent1 = new String(Files.readAllBytes(Paths.get("target/test-classes/results/resultClass1.java")));
@@ -57,9 +57,9 @@ public class LatticeTest {
     @Test
     public void test4() throws IOException {
         Lattice lattice = new Lattice(new File("target/test-classes/tests/lattice1.txt"));
-        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/ClassTest.java", lattice.getCombinationClasses());
-        ASTParser ast1 = new ASTParser(lattice, "target/test-classes/tests/ClassTest1.java", lattice.getCombinationClasses());
-        ASTParser ast2 = new ASTParser(lattice, "target/test-classes/tests/ClassTest2.java", lattice.getCombinationClasses());
+        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/ClassTest.java");
+        ASTParser ast1 = new ASTParser(lattice, "target/test-classes/tests/ClassTest1.java");
+        ASTParser ast2 = new ASTParser(lattice, "target/test-classes/tests/ClassTest2.java");
 
         String fileContent = new String(Files.readAllBytes(Paths.get("target/test-classes/results/resultClass3.java")));
         String fileContent1 = new String(Files.readAllBytes(Paths.get("target/test-classes/results/resultClass4.java")));

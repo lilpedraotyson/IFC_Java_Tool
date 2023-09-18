@@ -33,9 +33,9 @@ public class ASTParser extends ModifierVisitor<Void> {
     private Integer count_return_statement = 0;
 
 
-    public ASTParser(Lattice l, String filename, String combination) {
+    public ASTParser(Lattice l, String filename) {
         this.lattice = l;
-        this.combination = combination;
+        this.combination = l.getCombination();
         this.count_declassification = 0;
         String[] file_name_source = filename.split("/", 2);
 

@@ -16,8 +16,8 @@ public class ExplicitFlowTest {
     public void test1() throws IOException {
         Lattice lattice = new Lattice(new File("target/test-classes/tests/lattice.txt"));
         Lattice lattice1 = new Lattice(new File("target/test-classes/tests/lattice1.txt"));
-        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/ExplicitTest.java", lattice.getCombinationClasses());
-        ASTParser ast1 = new ASTParser(lattice1, "target/test-classes/tests/ExplicitTest.java", lattice1.getCombinationClasses());
+        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/ExplicitTest.java");
+        ASTParser ast1 = new ASTParser(lattice1, "target/test-classes/tests/ExplicitTest.java");
 
         String fileContent = new String(Files.readAllBytes(Paths.get("target/test-classes/results/result_explicit.java")));
         String fileContent1 = new String(Files.readAllBytes(Paths.get("target/test-classes/results/result_explicit1.java")));
@@ -29,7 +29,7 @@ public class ExplicitFlowTest {
     @Test
     public void test2() throws IOException {
         Lattice lattice = new Lattice(new File("target/test-classes/tests/lattice1.txt"));
-        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/ExplicitTest1.java", lattice.getCombinationClasses());
+        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/ExplicitTest1.java");
 
         String fileContent = new String(Files.readAllBytes(Paths.get("target/test-classes/results/result_explicit2.java")));
 

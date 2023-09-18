@@ -26,7 +26,7 @@ public class Main {
 
         /*System.out.println(lattice.meet("bot", "top"));
         System.out.println(lattice.join("bot", "top"));*/
-        ASTParser ast = new ASTParser(lattice, "src/main/resources/DissertationProgram.java", lattice.getCombinationClasses());
+        ASTParser ast = new ASTParser(lattice, "src/main/resources/DissertationProgram.java");
 
         //System.out.print(ast);
         FileWriter myWriter = new FileWriter(output);

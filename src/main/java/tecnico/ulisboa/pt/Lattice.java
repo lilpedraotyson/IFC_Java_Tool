@@ -30,6 +30,11 @@ public class Lattice {
         }
         this.depht();
     }
+
+    public String getCombination() {
+        return this.combination;
+    }
+
     public void setTop(String level) {
         this.addVertex(level);
         this.top = level;
