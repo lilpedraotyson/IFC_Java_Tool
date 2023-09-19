@@ -37,10 +37,9 @@ public class ASTParser extends ModifierVisitor<Void> {
         this.lattice = l;
         this.combination = l.getCombination();
         this.count_declassification = 0;
-        String[] file_name_source = filename.split("/", 2);
 
-        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(Main.class).resolve(file_name_source[0]));
-        this.cu = sourceRoot.parse("", file_name_source[1]);
+        SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(Main.class).resolve(filename.substring(0, filename.lastIndexOf("/") + 1)));
+        this.cu = sourceRoot.parse("", filename.substring(filename.lastIndexOf("/") + 1));
 
         List<ClassOrInterfaceDeclaration> classes = cu.findAll(ClassOrInterfaceDeclaration.class).stream().collect(Collectors.toList());
         for (ClassOrInterfaceDeclaration c : classes) {
@@ -51,6 +50,20 @@ public class ASTParser extends ModifierVisitor<Void> {
         }
 
         this.visit(cu, null);
+    }
+
+    public String lastDeclassification(String variable) {
+        String last_declassification = "";
+        Stack<String> auxStack = new Stack<>();
+        auxStack.addAll(this.declassification_stack);
+        while (!auxStack.isEmpty()) {
+            last_declassification = auxStack.pop();
+            if (last_declassification.contains(variable)) {
+                return last_declassification;
+            }
+        }
+        return variable;
+
     }
 
     @Override
@@ -139,18 +152,8 @@ public class ASTParser extends ModifierVisitor<Void> {
             String declassification_variable = this.declassification_stack.pop();
             String variable = this.declassification_variables.get(declassification_variable);
             c.getCommentedNode().get().findAll(NameExpr.class).forEach(n -> {
-                int flag = 0;
                 if (n.getNameAsString().equals(declassification_variable)) {
-                    for (int i = this.count_declassification; i > 0; i--) {
-                        if (this.declassification_stack.search(variable + "_" + i) != -1) {
-                            n.setName(variable + "_" + i);
-                            flag = 1;
-                            break;
-                        }
-                    }
-                    if (flag == 0) {
-                        n.setName(variable);
-                    }
+                    n.setName(this.lastDeclassification(variable));
                     this.declassification_variables.remove(declassification_variable);
                 }
             });
@@ -407,18 +410,8 @@ public class ASTParser extends ModifierVisitor<Void> {
     }
 
     private void assignmentExprRewrite(AssignExpr expr) {
-        int flag = 0;
         if (expr.getTarget().isNameExpr() && !expr.getValue().isNameExpr()) {
-            for (int i = this.count_declassification; i > 0; i--) {
-                if (this.declassification_stack.search(expr.getTarget().toString() + "_" + i) != -1) {
-                    expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(expr.getTarget().toString() + "_" + i)), expr.getValue().clone()));
-                    flag = 1;
-                    break;
-                }
-            }
-            if (flag == 0) {
-                expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(expr.getTarget().toString())), expr.getValue().clone()));
-            }
+            expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(this.lastDeclassification(expr.getTarget().toString()))), expr.getValue().clone()));
         }
     }
 
