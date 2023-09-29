@@ -50,7 +50,6 @@ public class ASTParser extends ModifierVisitor<Void> {
             for (MethodDeclaration m : methods) {
                 if (m.getNameAsString().equals("main")) {
                     main_class = c.getNameAsString();
-                    System.out.println(c.getNameAsString());
                 }
             }
             if (!c.getNameAsString().equals(main_class)) {
