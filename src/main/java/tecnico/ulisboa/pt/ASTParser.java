@@ -25,12 +25,14 @@ public class ASTParser extends ModifierVisitor<Void> {
     private Lattice lattice;
     public CompilationUnit cu;
     private String combination;
+    private String main_class = "";
     private HashMap<String, List<BodyDeclaration<?>>> custom_classes = new HashMap<>();
     private HashMap<String, String> variable_level = new HashMap<>();
     private HashMap<String, String> declassification_variables = new HashMap<>();
     private Stack<String> declassification_stack = new Stack<>();
     private Integer count_declassification;
     private Integer count_return_statement = 0;
+    private String current_class = "";
 
 
     public ASTParser(Lattice l, String filename) {
@@ -42,8 +44,16 @@ public class ASTParser extends ModifierVisitor<Void> {
         this.cu = sourceRoot.parse("", filename.substring(filename.lastIndexOf("/") + 1));
 
         List<ClassOrInterfaceDeclaration> classes = cu.findAll(ClassOrInterfaceDeclaration.class).stream().collect(Collectors.toList());
+        List<MethodDeclaration> methods;
         for (ClassOrInterfaceDeclaration c : classes) {
-            if (!c.getNameAsString().equals("Application")) {
+            methods = c.getMethods();
+            for (MethodDeclaration m : methods) {
+                if (m.getNameAsString().equals("main")) {
+                    main_class = c.getNameAsString();
+                    System.out.println(c.getNameAsString());
+                }
+            }
+            if (!c.getNameAsString().equals(main_class)) {
                 List<BodyDeclaration<?>> fields = c.getMembers().stream().filter(n -> n.isFieldDeclaration()).collect(Collectors.toList());
                 this.custom_classes.put(c.getNameAsString(), fields);
             }
@@ -68,7 +78,7 @@ public class ASTParser extends ModifierVisitor<Void> {
 
     @Override
     public Visitable visit(ClassOrInterfaceDeclaration c, Void arg) {
-        if (!c.getNameAsString().equals("Application")) {
+        if (!c.getNameAsString().equals(main_class)) {
             this.SecurityLevelsToClasses(c);
             this.overrideMethods(c.getMethods(), true, this.lattice.getTop());
 
@@ -165,7 +175,7 @@ public class ASTParser extends ModifierVisitor<Void> {
 
     @Override
     public Visitable visit(AssignExpr a, Void arg) {
-        if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals("Application")) {
+        if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals(main_class)) {
             this.assignmentExprRewrite(a);
         }
         super.visit(a, arg);
@@ -174,7 +184,7 @@ public class ASTParser extends ModifierVisitor<Void> {
 
     public Visitable visit(NameExpr a, Void arg) {
         if(a.findAncestor(ClassOrInterfaceDeclaration.class).isPresent()) {
-            if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals("Application")) {
+            if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals(main_class)) {
                 changeNameExprDeclassification(a);
             }
         }
