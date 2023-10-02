@@ -12,9 +12,59 @@ class Test {
     public Test method2(Test x, Test y) {
         switch(Math.max(this.level(), Math.max(x.level(), y.level()))) {
             case 0:
+                //High
+                Test b = new Test("High");
+                //Low
+                Test_Low a = new Test_Low("Low");
+                x = (Test) y;
+                y = (Test) x;
+                a = (Test_Low) x;
+                b = (Test) y;
+                a = (Test_Low) x.method2(a, b);
+                y = (Test) a.method2(a, b);
+                Test_Low y_1 = new Test_Low(y.t);
+                //declassification(y, Low) {
+                x = (Test) y_1;
+                y_1 = (Test_Low) x;
+                Test y_2 = new Test(y.t);
+                //declassification(y, High) {
+                y_2.method1(y_2);
+                y_2 = (Test) x.method2(y_2, x);
+                y_2 = (Test) a;
+                x = (Test) b;
+                x = (Test) y_2.method2(a, b);
+                //}
+                y_1 = (Test_Low) x.method2(a, b);
+                x = (Test) y_1;
+                y_1 = (Test_Low) b;
                 Test return_statement2 = x;
                 return new Test_Low(return_statement2.t);
             default:
+                //High
+                Test b = new Test("High");
+                //Low
+                Test_Low a = new Test_Low("Low");
+                x = (Test) y;
+                y = (Test) x;
+                a = (Test_Low) x;
+                b = (Test) y;
+                a = (Test_Low) x.method2(a, b);
+                y = (Test) a.method2(a, b);
+                Test_Low y_1 = new Test_Low(y.t);
+                //declassification(y, Low) {
+                x = (Test) y_1;
+                y_1 = (Test_Low) x;
+                Test y_2 = new Test(y.t);
+                //declassification(y, High) {
+                y_2.method1(y_2);
+                y_2 = (Test) x.method2(y_2, x);
+                y_2 = (Test) a;
+                x = (Test) b;
+                x = (Test) y_2.method2(a, b);
+                //}
+                y_1 = (Test_Low) x.method2(a, b);
+                x = (Test) y_1;
+                y_1 = (Test_Low) b;
                 Test return_statement3 = x;
                 return new Test(return_statement3.t);
         }
@@ -44,9 +94,59 @@ class Test_Low extends Test {
     public Test method2(Test x, Test y) {
         switch(Math.max(this.level(), Math.max(x.level(), y.level()))) {
             case 1:
+                //High
+                Test b = new Test("High");
+                //Low
+                Test_Low a = new Test_Low("Low");
+                x = (Test) y;
+                y = (Test) x;
+                a = (Test_Low) x;
+                b = (Test) y;
+                a = (Test_Low) x.method2(a, b);
+                y = (Test) a.method2(a, b);
+                Test_Low y_1 = new Test_Low(y.t);
+                //declassification(y, Low) {
+                x = (Test) y_1;
+                y_1 = (Test_Low) x;
+                Test y_2 = new Test(y.t);
+                //declassification(y, High) {
+                y_2.method1(y_2);
+                y_2 = (Test) x.method2(y_2, x);
+                y_2 = (Test) a;
+                x = (Test) b;
+                x = (Test) y_2.method2(a, b);
+                //}
+                y_1 = (Test_Low) x.method2(a, b);
+                x = (Test) y_1;
+                y_1 = (Test_Low) b;
                 Test return_statement0 = x;
                 return new Test(return_statement0.t);
             default:
+                //High
+                Test b = new Test("High");
+                //Low
+                Test_Low a = new Test_Low("Low");
+                x = (Test) y;
+                y = (Test) x;
+                a = (Test_Low) x;
+                b = (Test) y;
+                a = (Test_Low) x.method2(a, b);
+                y = (Test) a.method2(a, b);
+                Test_Low y_1 = new Test_Low(y.t);
+                //declassification(y, Low) {
+                x = (Test) y_1;
+                y_1 = (Test_Low) x;
+                Test y_2 = new Test(y.t);
+                //declassification(y, High) {
+                y_2.method1(y_2);
+                y_2 = (Test) x.method2(y_2, x);
+                y_2 = (Test) a;
+                x = (Test) b;
+                x = (Test) y_2.method2(a, b);
+                //}
+                y_1 = (Test_Low) x.method2(a, b);
+                x = (Test) y_1;
+                y_1 = (Test_Low) b;
                 Test return_statement1 = x;
                 return new Test_Low(return_statement1.t);
         }
@@ -64,14 +164,17 @@ public class Application {
         y = x;
         y.method1(y);
         y = (Test_Low) x.method2(x, y);
-        Test y_1 = new Test(y.t);
-        //declassification(y, High) {
-        x = y_1;
-        y_1 = x;
-        y_1.method1(y_1);
-        y_1 = (Test_High) x.method2(y_1, x);
         //}
-        x = y;
-        y = x;
+        Test y_3 = new Test(y.t);
+        //declassification(y, High) {
+        x = y_3;
+        y_3 = x;
+        Test x_4 = new Test(x.t);
+        //declassification(x, High) {
+        y_3.method1(y_3);
+        y_3 = (Test) x_4.method2(y_3, x_4);
+        //}
+        x = y_3;
+        y_3 = x;
     }
 }

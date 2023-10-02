@@ -4,7 +4,6 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
-import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -15,30 +14,22 @@ import com.github.javaparser.utils.CodeGenerationUtils;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.github.javaparser.ast.expr.AssignExpr.Operator.ASSIGN;
 
 public class ASTParser extends ModifierVisitor<Void> {
     private Lattice lattice;
-    public CompilationUnit cu;
+    private CompilationUnit cu;
     private String combination;
     private String main_class = "";
     private HashMap<String, List<BodyDeclaration<?>>> custom_classes = new HashMap<>();
-    private HashMap<String, String> variable_level = new HashMap<>();
-    private HashMap<String, String> declassification_variables = new HashMap<>();
-    private Stack<String> declassification_stack = new Stack<>();
-    private Integer count_declassification;
     private Integer count_return_statement = 0;
-    private String current_class = "";
 
 
     public ASTParser(Lattice l, String filename) {
         this.lattice = l;
         this.combination = l.getCombination();
-        this.count_declassification = 0;
 
         SourceRoot sourceRoot = new SourceRoot(CodeGenerationUtils.mavenModuleRoot(Main.class).resolve(filename.substring(0, filename.lastIndexOf("/") + 1)));
         this.cu = sourceRoot.parse("", filename.substring(filename.lastIndexOf("/") + 1));
@@ -58,21 +49,8 @@ public class ASTParser extends ModifierVisitor<Void> {
             }
         }
 
-        this.visit(cu, null);
-    }
-
-    public String lastDeclassification(String variable) {
-        String last_declassification = "";
-        Stack<String> auxStack = new Stack<>();
-        auxStack.addAll(this.declassification_stack);
-        while (!auxStack.isEmpty()) {
-            last_declassification = auxStack.pop();
-            if (last_declassification.contains(variable)) {
-                return last_declassification;
-            }
-        }
-        return variable;
-
+        ASTParserRewrite ast = new ASTParserRewrite(this.cu, this.lattice, this.main_class, this.custom_classes);
+        this.visit(this.cu, null);
     }
 
     @Override
@@ -90,105 +68,6 @@ public class ASTParser extends ModifierVisitor<Void> {
         }
         super.visit(c, arg);
         return c;
-    }
-
-    @Override
-    public Visitable visit(LineComment c, Void arg) {
-        String regex = "declassification\\(([^,]+),([^,]+)\\)\\s*\\{";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(c.getContent());
-
-        if (this.lattice.getMatrix().containsKey(c.getContent())) {
-            this.variableDeclarationRewrite((VariableDeclarationExpr) c.getCommentedNode().get().getChildNodes().get(0), c.getContent());
-        } else if (matcher.matches()) {
-            String variable = matcher.group(1).trim();
-            String new_level = matcher.group(2).trim();
-
-            this.count_declassification = this.count_declassification + 1;
-            this.declassification_variables.put(variable + "_" + this.count_declassification, variable);
-            this.declassification_stack.push(variable + "_" + this.count_declassification);
-
-            String last_level = this.variable_level.get(variable);
-
-            String custom_class = "";
-            if (last_level.lastIndexOf("_") != -1) {
-                custom_class = last_level.substring(0, last_level.lastIndexOf("_"));
-                this.variable_level.put(variable + "_" + this.count_declassification, last_level.substring(0, last_level.lastIndexOf("_")) + "_" + new_level);
-            } else {
-                custom_class = last_level;
-                this.variable_level.put(variable + "_" + this.count_declassification, last_level + "_" + new_level);
-            }
-
-            String new_custom_class = "";
-            if (new_level.equals(this.lattice.getTop())) {
-                new_custom_class = custom_class;
-            } else {
-                new_custom_class = custom_class + "_" + new_level;
-            }
-
-            VariableDeclarationExpr declaration = new VariableDeclarationExpr(new ClassOrInterfaceType(new_custom_class),
-                    variable + "_" + this.count_declassification);
-
-            String statement = "new " + new_custom_class + "(";
-            for (BodyDeclaration<?> field : this.custom_classes.get(custom_class)) {
-                statement = statement + variable + "." + field.toFieldDeclaration().get().getVariables().get(0).toString() + ", ";
-            }
-            statement = statement.substring(0, statement.length() - 2);
-            statement = statement + ")";
-
-            declaration.getVariable(0).setInitializer(statement);
-            ExpressionStmt newStmt = new ExpressionStmt(declaration);
-
-            c.getCommentedNode().get().findAll(NameExpr.class).forEach(n -> {
-                if (n.getNameAsString().contains(variable)) {
-                    n.setName(variable + "_" + this.count_declassification);
-                }
-            });
-
-            BlockStmt block = c.getCommentedNode().get().findAncestor(BlockStmt.class).get();
-            int count = 0;
-            BlockStmt newBlock = new BlockStmt();
-            newBlock.copyStatements(block);
-
-            for (Statement st : newBlock.getStatements()) {
-                if (st.equals(c.getCommentedNode().get())) {
-                    block.addStatement(count, newStmt);
-                }
-                count = count + 1;
-            }
-
-        } else if (c.getContent().equals("}")) {
-            String declassification_variable = this.declassification_stack.pop();
-            String variable = this.declassification_variables.get(declassification_variable);
-            c.getCommentedNode().get().findAll(NameExpr.class).forEach(n -> {
-                if (n.getNameAsString().equals(declassification_variable)) {
-                    n.setName(this.lastDeclassification(variable));
-                    this.declassification_variables.remove(declassification_variable);
-                }
-            });
-        }
-
-        super.visit(c, arg);
-        return c;
-    }
-
-    @Override
-    public Visitable visit(AssignExpr a, Void arg) {
-        if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals(main_class)) {
-            this.assignmentExprRewrite(a);
-        }
-        super.visit(a, arg);
-        return a;
-    }
-
-    public Visitable visit(NameExpr a, Void arg) {
-        if(a.findAncestor(ClassOrInterfaceDeclaration.class).isPresent()) {
-            if (a.findAncestor(ClassOrInterfaceDeclaration.class).get().getNameAsString().equals(main_class)) {
-                changeNameExprDeclassification(a);
-            }
-        }
-        super.visit(a, arg);
-        return a;
     }
 
     private void addMethods(ClassOrInterfaceDeclaration node, List<MethodDeclaration> methods) {
@@ -392,43 +271,6 @@ public class ASTParser extends ModifierVisitor<Void> {
             for (MethodDeclaration method : methods) {
                 if (!method.getNameAsString().equals("level") && !method.getType().isVoidType())
                     addOverride(level, method);
-            }
-        }
-    }
-
-    private void variableDeclarationRewrite(VariableDeclarationExpr expr, String level) {
-        VariableDeclarator variable = (VariableDeclarator) expr.getChildNodes().get(0);
-
-        String classLevel = "";
-        String initializer = variable.getInitializer().get().toString();
-
-        if (!level.equals(this.lattice.getTop())) {
-            classLevel = variable.getType().toString() + "_" + level;
-        } else {
-            classLevel = variable.getType().toString();
-        }
-
-        this.variable_level.put(variable.getNameAsString().toString(), classLevel);
-        variable.setType(classLevel);
-
-        if (variable.getInitializer().get().isObjectCreationExpr()) {
-            variable.setInitializer("new " + variable.getType().toString() + initializer.substring(initializer.indexOf("("), initializer.lastIndexOf(")") + 1));
-        } else {
-            variable.setInitializer(new CastExpr(variable.getType(), variable.getInitializer().get()));
-        }
-    }
-
-    private void assignmentExprRewrite(AssignExpr expr) {
-        if (expr.getTarget().isNameExpr() && !expr.getValue().isNameExpr()) {
-            expr.setValue(new CastExpr(new ClassOrInterfaceType(this.variable_level.get(this.lastDeclassification(expr.getTarget().toString()))), expr.getValue().clone()));
-        }
-    }
-
-    private void changeNameExprDeclassification(NameExpr name) {
-        for (int i = this.count_declassification; i > 0; i--) {
-            if (this.declassification_stack.search(name.getNameAsString() + "_" + i) != -1) {
-                name.setName(name.getNameAsString() + "_" + i);
-                break;
             }
         }
     }
