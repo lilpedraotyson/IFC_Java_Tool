@@ -218,16 +218,10 @@ public class ASTParser extends ModifierVisitor<Void> {
         BlockStmt body = method.getBody().get();
         SwitchStmt sw = new SwitchStmt();
         NodeList<SwitchEntry> entrys = new NodeList<>();
-        NodeList<Statement> variableDeclarations = new NodeList<>();
 
+        NodeList<Statement> variableDeclarations = new NodeList<>();
         NodeList<Statement> noVariableDeclaration = new NodeList<>();
         BlockStmt bodyNoVariableDeclaration = new BlockStmt();
-        /*bodyNoVariableDeclaration.copyStatements(body);
-
-        body.findAll(VariableDeclarationExpr.class).forEach(v -> {
-            variableDeclarations.add((Statement) v.getParentNode().get());
-        });
-        System.out.println(variableDeclarations);*/
 
         for (Statement s : body.getStatements()) {
             if (s.isExpressionStmt()) {
@@ -280,7 +274,6 @@ public class ASTParser extends ModifierVisitor<Void> {
         entrys.add(new SwitchEntry(new NodeList<>(), SwitchEntry.Type.STATEMENT_GROUP , statements));
 
         sw.setEntries(entrys);
-        //System.out.println(sw);
         NodeList<Statement> finalBody = new NodeList<>();
         finalBody.addAll(variableDeclarations);
         finalBody.addAll(new NodeList<>(sw));
