@@ -218,6 +218,29 @@ public class ASTParser extends ModifierVisitor<Void> {
         BlockStmt body = method.getBody().get();
         SwitchStmt sw = new SwitchStmt();
         NodeList<SwitchEntry> entrys = new NodeList<>();
+        NodeList<Statement> variableDeclarations = new NodeList<>();
+
+        NodeList<Statement> noVariableDeclaration = new NodeList<>();
+        BlockStmt bodyNoVariableDeclaration = new BlockStmt();
+        /*bodyNoVariableDeclaration.copyStatements(body);
+
+        body.findAll(VariableDeclarationExpr.class).forEach(v -> {
+            variableDeclarations.add((Statement) v.getParentNode().get());
+        });
+        System.out.println(variableDeclarations);*/
+
+        for (Statement s : body.getStatements()) {
+            if (s.isExpressionStmt()) {
+                if (s.asExpressionStmt().getExpression().isVariableDeclarationExpr()) {
+                    variableDeclarations.add(s);
+                } else {
+                    noVariableDeclaration.add(s);
+                }
+            } else {
+                noVariableDeclaration.add(s);
+            }
+        }
+        bodyNoVariableDeclaration.setStatements(noVariableDeclaration);
 
         NodeList<Expression> s_selector_arguments = new NodeList<>();
         s_selector_arguments.add(new NameExpr("this.level()"));
@@ -242,7 +265,7 @@ public class ASTParser extends ModifierVisitor<Void> {
         for (String level : this.lattice.getMatrix().keySet()) {
             NodeList<Statement> statements = new NodeList<>();
             BlockStmt newBody = new BlockStmt();
-            newBody.copyStatements(body);
+            newBody.copyStatements(bodyNoVariableDeclaration);
 
             if (!level.equals(class_level)) {
                 this.compute_statements(statements, newBody, method, class_level, level);
@@ -252,12 +275,16 @@ public class ASTParser extends ModifierVisitor<Void> {
         }
         NodeList<Statement> statements = new NodeList<>();
         BlockStmt newBody = new BlockStmt();
-        newBody.copyStatements(body);
+        newBody.copyStatements(bodyNoVariableDeclaration);
         this.compute_statements(statements, newBody,  method, class_level, class_level);
         entrys.add(new SwitchEntry(new NodeList<>(), SwitchEntry.Type.STATEMENT_GROUP , statements));
 
         sw.setEntries(entrys);
-        method.setBody(new BlockStmt(new NodeList<Statement>(sw)));
+        //System.out.println(sw);
+        NodeList<Statement> finalBody = new NodeList<>();
+        finalBody.addAll(variableDeclarations);
+        finalBody.addAll(new NodeList<>(sw));
+        method.setBody(new BlockStmt(finalBody));
     }
 
     private void overrideMethods(List<MethodDeclaration> methods, boolean top_class, String level) {
