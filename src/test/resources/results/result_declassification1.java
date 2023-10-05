@@ -159,13 +159,13 @@ public class Application {
         //declassification(m, top) {
         x_2 = (Test_mid) m_3.method3(m_3, b);
         //}
-        b = (Test_bot) x_2.method2(m);
+        b = (Test_mid) x_2.method2(m);
         //}
         x_1 = b;
         m = x_1;
         x_1 = m;
         //}
-        x = (Test_bot) m.method3(m, b);
+        x = (Test) m.method3(m, b);
         b = (Test_bot) x.method2(m);
     }
 }

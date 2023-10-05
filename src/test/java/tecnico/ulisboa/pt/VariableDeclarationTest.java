@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class VariableDeclarationTest {
 
-    /*@Test
+    @Test
     public void test1() throws IOException {
         Lattice lattice = new Lattice(new File("target/test-classes/tests/lattice.txt"));
-        ASTParserClass ast = new ASTParserClass(lattice, "target/test-classes/tests/VariableDeclarationTest.java");
-        ASTParserClass ast1 = new ASTParserClass(lattice, "target/test-classes/tests/VariableDeclarationTest1.java");
+        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/VariableDeclarationTest.java");
+        ASTParser ast1 = new ASTParser(lattice, "target/test-classes/tests/VariableDeclarationTest1.java");
 
         String fileContent = new String(Files.readAllBytes(Paths.get("target/test-classes/results/result_variable_declaration.java")));
         String fileContent1 = new String(Files.readAllBytes(Paths.get("target/test-classes/results/result_variable_declaration1.java")));
@@ -27,8 +27,8 @@ public class VariableDeclarationTest {
     @Test
     public void test2() throws IOException {
         Lattice lattice = new Lattice(new File("target/test-classes/tests/lattice1.txt"));
-        ASTParserClass ast = new ASTParserClass(lattice, "target/test-classes/tests/VariableDeclarationTest2.java");
-        ASTParserClass ast1 = new ASTParserClass(lattice, "target/test-classes/tests/VariableDeclarationTest3.java");
+        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/VariableDeclarationTest2.java");
+        ASTParser ast1 = new ASTParser(lattice, "target/test-classes/tests/VariableDeclarationTest3.java");
 
         String fileContent = new String(Files.readAllBytes(Paths.get("target/test-classes/results/result_variable_declaration2.java")));
         String fileContent1 = new String(Files.readAllBytes(Paths.get("target/test-classes/results/result_variable_declaration3.java")));
@@ -40,10 +40,10 @@ public class VariableDeclarationTest {
     @Test
     public void test3() throws IOException {
         Lattice lattice = new Lattice(new File("target/test-classes/tests/lattice1.txt"));
-        ASTParserClass ast = new ASTParserClass(lattice, "target/test-classes/tests/VariableDeclarationTest4.java");
+        ASTParser ast = new ASTParser(lattice, "target/test-classes/tests/VariableDeclarationTest4.java");
 
         String fileContent = new String(Files.readAllBytes(Paths.get("target/test-classes/results/result_variable_declaration4.java")));
 
         assertEquals(ast.toString().trim().replaceAll("\\s+", " "), fileContent.trim().replaceAll("\\s+", " "));
-    }*/
+    }
 }
